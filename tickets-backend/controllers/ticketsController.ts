@@ -1,10 +1,10 @@
 import { Request, Response } from 'express';
 const pool = require('../db');
 
-export const getRooms = async (req: Request, res: Response): Promise<any> => {
+export const getTickets = async (req: Request, res: Response): Promise <any> => {
   try {
     const { data, error } = await pool
-      .from('salles')
+      .from('tickets')
       .select('*');
 
     if (error) {
@@ -12,15 +12,15 @@ export const getRooms = async (req: Request, res: Response): Promise<any> => {
     }
     return res.json(data);
   } catch (err) {
-    return res.status(500).json({ error: 'Server error fetching rooms' });
+    return res.status(500).json({ error: 'Error fetching tickets' });
   }
 };
 
-export const getRoomById = async (req: Request, res: Response): Promise<any> => {
+export const getTicketById = async (req: Request, res: Response): Promise <any> => {
   const { id } = req.params;
   try {
     const { data, error } = await pool
-      .from('salles')
+      .from('tickets')
       .select('*')
       .eq('id', id)
       .single();
@@ -30,16 +30,16 @@ export const getRoomById = async (req: Request, res: Response): Promise<any> => 
     }
     return res.json(data);
   } catch (err) {
-    return res.status(500).json({ error: 'Server error fetching room' });
+    return res.status(500).json({ error: 'Error fetching ticket' });
   }
 };
 
-export const createRoom = async (req: Request, res: Response): Promise<any> => {
+export const createTicket = async (req: Request, res: Response): Promise <any> => {
   try {
-    const { nom, dispo, capacity } = req.body;
+    const { reservation_id, type, num_siege, price } = req.body;
     const { data, error } = await pool
-      .from('salles')
-      .insert([{ nom, dispo, capacity }])
+      .from('tickets')
+      .insert([{ reservation_id, type, num_siege, price }])
       .single();
 
     if (error) {
@@ -47,17 +47,17 @@ export const createRoom = async (req: Request, res: Response): Promise<any> => {
     }
     return res.status(201).json(data);
   } catch (err) {
-    return res.status(400).json({ error: 'Failed to create room' });
+    return res.status(400).json({ error: 'Failed to create ticket' });
   }
 };
 
-export const updateRoom = async (req: Request, res: Response): Promise<any> => {
+export const updateTicket = async (req: Request, res: Response): Promise <any> => {
   const { id } = req.params;
+  const { reservation_id, type, num_siege, price } = req.body;
   try {
-    const { nom, dispo, capacity } = req.body;
     const { data, error } = await pool
-      .from('salles')
-      .update({ nom, dispo, capacity })
+      .from('tickets')
+      .update({ reservation_id, type, num_siege, price })
       .eq('id', id)
       .single();
 
@@ -66,23 +66,23 @@ export const updateRoom = async (req: Request, res: Response): Promise<any> => {
     }
     return res.json(data);
   } catch (err) {
-    return res.status(400).json({ error: 'Failed to update room' });
+    return res.status(400).json({ error: 'Failed to update ticket' });
   }
 };
 
-export const deleteRoom = async (req: Request, res: Response): Promise<any> => {
+export const deleteTicket = async (req: Request, res: Response): Promise <any> => {
   const { id } = req.params;
   try {
     const { error } = await pool
-      .from('salles')
+      .from('tickets')
       .delete()
       .eq('id', id);
 
     if (error) {
       return res.status(400).json({ error: error.message });
     }
-    return res.json({ message: `Salle ${id} deleted.` });
+    return res.json({ message: `Ticket ${id} deleted.` });
   } catch (err) {
-    return res.status(500).json({ error: 'Failed to delete room' });
+    return res.status(500).json({ error: 'Failed to delete ticket' });
   }
 };
