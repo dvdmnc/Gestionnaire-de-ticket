@@ -1,111 +1,108 @@
 import { Request, Response } from 'express';
-const pool = require('../db'); // Your Supabase client
+import pool from '../db';
 
 
 export const getFilms = async (req: Request, res: Response): Promise<any> => {
   try {
-    const { data: filmRows, error: filmError } = await pool
+    const { data, error } = await pool
       .from('films')
-      .select('id, nom, poster'); 
+      .select('id, nom, poster'); // Only fields we need for listing
 
-    if (filmError) {
-      return res.status(500).json({ error: filmError.message });
+    if (error) {
+      return res.status(500).json({ error: error.message });
     }
-    if (!filmRows) {
-      return res.json([]); 
-    }
-
-
-    const enrichedFilms = [];
-    for (const film of filmRows) {
-      const { data: seanceRows, error: seanceError } = await pool
-        .from('seances')
-        .select(`
-          id,
-          heure,
-          salle_id,
-          salles (
-            id,
-            nom,
-            dispo,
-            capacity
-          )
-        `)
-        .eq('film_id', film.id);
-
-      if (seanceError) {
-        return res.status(500).json({ error: seanceError.message });
-      }
-
-
-      let seancesWithSalle: any[] = [];
-      if (seanceRows) {
-
-        seancesWithSalle = await Promise.all(
-          seanceRows.map(async (seance: any) => {
-            const salle = seance.salles; 
-            const salleCapacity = salle.capacity;
-
-
-            const { data: ticketCountData, error: ticketCountErr } = await pool
-              .from('tickets')
-              .select('id', { count: 'exact' })
-              .eq('reservation_id.reservations.seance_id', seance.id);
-
-            if (ticketCountErr) {
-              throw new Error(ticketCountErr.message);
-            }
-            const ticketsSold = (ticketCountData?.length) || 0;
-            const seatsLeft = salleCapacity - ticketsSold;
-
-            return {
-              id: seance.id,
-              heure: seance.heure,
-              salle: {
-                id: salle.id,
-                nom: salle.nom,
-                dispo: salle.dispo,
-                capacity: salle.capacity,
-                seats_left: seatsLeft,
-              },
-            };
-          })
-        );
-      }
-
-      enrichedFilms.push({
-        id: film.id,
-        nom: film.nom,
-        poster: film.poster,
-        seances: seancesWithSalle,
-      });
-    }
-
-    return res.json(enrichedFilms);
-  } catch (err: any) {
+    // If no rows, data might be null, so return []
+    return res.json(data || []);
+  } catch (err) {
     console.error(err);
     return res.status(500).json({ error: 'Server error fetching films' });
   }
 };
 
 
-export const getFilmById = async (req: Request, res: Response): Promise<any>  => {
+export const getFilmById = async (req: Request, res: Response): Promise<any> => {
   const { id } = req.params;
   try {
-    const { data, error } = await pool
+    const { data: film, error } = await pool
       .from('films')
-      .select('*')
+      .select(`
+        id,
+        nom,
+        poster,
+        annee,
+        description,
+        duree,
+        realisateur,
+        genre,
+        seances(
+          id,
+          heure,
+          salles(
+            id,
+            nom,
+            dispo,
+            capacity
+          )
+        )
+      `)
       .eq('id', id)
       .single();
 
     if (error) {
       return res.status(404).json({ error: error.message });
     }
-    return res.json(data);
+    if (!film) {
+      return res.status(404).json({ error: 'Film not found' });
+    }
+
+    // If there are no seances, we can just return the film
+    if (!film.seances || film.seances.length === 0) {
+      return res.json(film);
+    }
+
+    
+    for (const seance of film.seances) {
+      const salleCapacity = seance.salles.capacity;
+
+      // 1) Reservations for this seance
+      const { data: reservations, error: reservationsErr } = await pool
+        .from('reservations')
+        .select('id')
+        .eq('seance_id', seance.id);
+
+      if (reservationsErr) {
+        throw new Error(reservationsErr.message);
+      }
+
+      let ticketsSold = 0;
+      if (reservations && reservations.length > 0) {
+        // 2) Tickets for these reservations
+        const reservationIds = reservations.map((r :any) => r.id);
+
+        const { data: tickets, error: ticketsErr } = await pool
+          .from('tickets')
+          .select('id')
+          .in('reservation_id', reservationIds);
+
+        if (ticketsErr) {
+          throw new Error(ticketsErr.message);
+        }
+
+        ticketsSold = tickets ? tickets.length : 0;
+      }
+
+      const seatsLeft = salleCapacity - ticketsSold;
+      // Attach seats_left to the salle object
+      seance.salles.seats_left = seatsLeft;
+    }
+
+    return res.json({film});
   } catch (err) {
+    console.error(err);
     return res.status(500).json({ error: 'Server error fetching film' });
   }
 };
+
 
 
 export const createFilm = async (req: Request, res: Response): Promise<any>  => {
@@ -138,7 +135,7 @@ export const createFilm = async (req: Request, res: Response): Promise<any>  => 
     }
 
     // 2) Insert if valid
-    const { data, error } = await pool
+    const { data: film, error } = await pool
       .from('films')
       .insert([{
         nom,
@@ -149,14 +146,14 @@ export const createFilm = async (req: Request, res: Response): Promise<any>  => 
         realisateur,
         genre,
       }])
-      .single();
+      .select();
 
     if (error) {
       return res.status(400).json({ error: error.message });
     }
-    return res.status(201).json(data);
+    return res.status(201).json({data:film});
   } catch (err) {
-    return res.status(400).json({ error: 'Failed to create film' });
+    return res.status(400).json({ error: 'Failed to create film' + err });
   }
 };
 
@@ -174,7 +171,7 @@ export const updateFilm = async (req: Request, res: Response): Promise<any>  => 
       genre,
     } = req.body;
 
-    const { data, error } = await pool
+    const { data:film, error } = await pool
       .from('films')
       .update({
         nom,
@@ -186,12 +183,12 @@ export const updateFilm = async (req: Request, res: Response): Promise<any>  => 
         genre,
       })
       .eq('id', id)
-      .single();
+      .select();
 
     if (error) {
       return res.status(400).json({ error: error.message });
     }
-    return res.json(data);
+    return res.json(film);
   } catch (err) {
     return res.status(400).json({ error: 'Failed to update film' });
   }
@@ -228,9 +225,7 @@ export const deleteFilm = async (req: Request, res: Response): Promise<any>  => 
     //    We'll gather seance IDs
     const seanceIds = seancesData.map((s : any) => s.id);
 
-    // If any tickets exist for those seances => forbid
-    // We'll do a query that finds all reservations/tickets for these seances
-    // If found, we collect the hours => return 403
+
     const { data: soldData, error: soldError } = await pool
       .from('tickets')
       .select(`
