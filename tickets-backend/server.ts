@@ -7,6 +7,9 @@ import seanceRoutes from './routes/screenings';
 import reservationRoutes from './routes/bookings';
 import ticketRoutes from './routes/tickets';
 
+import dotenv from 'dotenv';
+import authRoutes from './routes/authRoutes';
+
 const app: Application = express();
 
 // Middlewares
@@ -19,6 +22,13 @@ app.use('/salles', salleRoutes);
 app.use('/seances', seanceRoutes);
 app.use('/reservations', reservationRoutes);
 app.use('/tickets', ticketRoutes);
+
+dotenv.config();
+
+app.use(express.json());
+
+app.use('/auth', authRoutes);
+
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Serveur démarré sur le port ${PORT}`));
