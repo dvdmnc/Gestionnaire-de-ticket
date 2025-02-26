@@ -1,12 +1,15 @@
-{    
+{
   "scripts": {
-      "build": "tsc",               
-      "dev": "ts-node src/app.ts",  
-      "start": "node dist/app.js"   
-    
+    "build": "tsc",
+    "dev": "ts-node server.ts",
+    "watch": "nodemon server.ts",
+    "start": "ts-node server.ts"
   },
   "dependencies": {
-    "express": "^4.21.2"
+    "@supabase/supabase-js": "^2.49.1",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "pg": "^8.13.3"
   },
   "devDependencies": {
     "@types/express": "^5.0.0",
