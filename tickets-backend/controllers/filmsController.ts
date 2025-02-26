@@ -6,7 +6,7 @@ export const getFilms = async (req: Request, res: Response): Promise<any> => {
   try {
     const { data, error } = await pool
       .from('films')
-      .select('id, nom, poster'); // Only fields we need for listing
+      .select('id, nom, poster,genre,annee'); // Only fields we need for listing
 
     if (error) {
       return res.status(500).json({ error: error.message });
