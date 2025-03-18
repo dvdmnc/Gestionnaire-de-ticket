@@ -13,7 +13,7 @@ export const getUsers = async (req: Request, res: Response): Promise<any> => {
     }
     return res.json(data);
   } catch (err) {
-    return res.status(500).json({ error: 'Server error fetching users' });
+    return res.status(500).json({ error: 'Server error fetching users!' , err:err});
   }
 };
 

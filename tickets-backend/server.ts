@@ -1,5 +1,8 @@
+import dotenv from 'dotenv';
+dotenv.config();
+
 import express, { Application } from 'express';
-const pool = require('./db'); // Import du fichier db.js
+const pool = require('./db');
 const cors = require('cors');
 import userRoutes from './routes/users';
 import filmRoutes from './routes/films';
@@ -7,9 +10,9 @@ import salleRoutes from './routes/rooms';
 import seanceRoutes from './routes/screenings';
 import reservationRoutes from './routes/bookings';
 import ticketRoutes from './routes/tickets';
-
-import dotenv from 'dotenv';
 import authRoutes from './routes/authRoutes';
+
+
 
 const app: Application = express();
 

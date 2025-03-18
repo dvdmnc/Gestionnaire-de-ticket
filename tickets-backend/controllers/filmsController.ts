@@ -1,5 +1,7 @@
-import { Request, Response } from 'express';
-import pool from '../db';
+import { Response } from "express";
+import pool from "../db";
+import { Request } from "express"; // Import the extended type
+import { AuthenticatedRequest } from "../types/types"; // Import extended request type
 
 
 export const getFilms = async (req: Request, res: Response): Promise<any> => {
@@ -104,56 +106,36 @@ export const getFilmById = async (req: Request, res: Response): Promise<any> => 
 };
 
 
-
-export const createFilm = async (req: Request, res: Response): Promise<any>  => {
+export const createFilm = async (req: AuthenticatedRequest, res: Response): Promise<any> => {
   try {
-    const {
-      nom,
-      poster,
-      annee,
-      description,
-      duree,
-      realisateur,
-      genre,
-    } = req.body;
-
-    // 1) Validate required fields
-    const missingFields: string[] = [];
-    if (!nom) missingFields.push('nom');
-    if (!poster) missingFields.push('poster');
-    if (!annee) missingFields.push('annee');
-    if (!description) missingFields.push('description');
-    if (!duree) missingFields.push('duree');
-    if (!realisateur) missingFields.push('realisateur');
-    if (!genre) missingFields.push('genre');
-
-    if (missingFields.length > 0) {
-      return res.status(400).json({
-        error: 'Missing fields',
-        missingFields,
-      });
+    if (!req.auth?.user) {
+      return res.status(401).json({ error: "Unauthorized: User not logged in" });
     }
 
-    // 2) Insert if valid
+    // Check if user is an admin (you should store this info in your Supabase database)
+    const { data: userData, error: userError } = await pool
+      .from("users")
+      .select("isAdmin")
+      .eq("id", req.auth.user.id)
+      .single();
+
+    if (userError || !userData?.isAdmin) {
+      return res.status(403).json({ error: "Forbidden: User is not an admin" });
+    }
+
+    const { nom, poster, annee, description, duree, realisateur, genre } = req.body;
+
     const { data: film, error } = await pool
-      .from('films')
-      .insert([{
-        nom,
-        poster,
-        annee,
-        description,
-        duree,
-        realisateur,
-        genre,
-      }])
+      .from("films")
+      .insert([{ nom, poster, annee, description, duree, realisateur, genre }])
       .select();
 
     if (error) {
       return res.status(400).json({ error: error.message });
     }
-    return res.status(201).json({data:film});
+    return res.status(201).json({ data: film });
   } catch (err) {
-    return res.status(400).json({ error: 'Failed to create film' + err });
+    return res.status(400).json({ error: "Failed to create film: " + err });
   }
 };
 
