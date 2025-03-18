@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import pool from '../db';
+import {supabase} from '../db';
 import { FilmListing, FilmWithSeances, Film } from '../types/types';
 
 export const getFilms = async (
@@ -7,7 +7,7 @@ export const getFilms = async (
   res: Response<FilmListing[] | { error: string }>
 ): Promise<any> => {
   try {
-    const { data, error } = await pool
+    const { data, error } = await supabase
       .from('films')
       .select('id, nom, poster,genre,annee'); // Only fields we need for listing
 
@@ -29,7 +29,7 @@ export const getFilmById = async (
 ): Promise<any> => {
   const { id } = req.params;
   try {
-    const { data: film, error } = await pool
+    const { data: film, error } = await supabase
       .from('films')
       .select(`
         id,
@@ -71,7 +71,7 @@ export const getFilmById = async (
       const salleCapacity = seance.salles.capacity;
 
       // 1) Reservations for this seance
-      const { data: reservations, error: reservationsErr } = await pool
+      const { data: reservations, error: reservationsErr } = await supabase
         .from('reservations')
         .select('id')
         .eq('seance_id', seance.id);
@@ -85,7 +85,7 @@ export const getFilmById = async (
         // 2) Tickets for these reservations
         const reservationIds = reservations.map((r :any) => r.id);
 
-        const { data: tickets, error: ticketsErr } = await pool
+        const { data: tickets, error: ticketsErr } = await supabase
           .from('tickets')
           .select('id')
           .in('reservation_id', reservationIds);
@@ -147,7 +147,7 @@ export const createFilm = async (
     }
 
     // 2) Insert if valid
-    const { data: film, error } = await pool
+    const { data: film, error } = await supabase
       .from('films')
       .insert([{
         nom,
@@ -186,7 +186,7 @@ export const updateFilm = async (
       genre,
     } = req.body;
 
-    const { data:film, error } = await pool
+    const { data:film, error } = await supabase
       .from('films')
       .update({
         nom,
@@ -225,7 +225,7 @@ export const deleteFilm = async (
   const { id } = req.params;
   try {
     // 1) Find all seances for this film
-    const { data: seancesData, error: seancesError } = await pool
+    const { data: seancesData, error: seancesError } = await supabase
       .from('seances')
       .select('id, heure')
       .eq('film_id', id);
@@ -236,7 +236,7 @@ export const deleteFilm = async (
 
     if (!seancesData || seancesData.length === 0) {
       // No seances => safe to delete
-      const { error: deleteError } = await pool
+      const { error: deleteError } = await supabase
         .from('films')
         .delete()
         .eq('id', id);
@@ -252,7 +252,7 @@ export const deleteFilm = async (
     const seanceIds = seancesData.map((s : any) => s.id);
 
 
-    const { data: soldData, error: soldError } = await pool
+    const { data: soldData, error: soldError } = await supabase
       .from('tickets')
       .select(`
         id,
@@ -288,7 +288,7 @@ export const deleteFilm = async (
     }
 
     // 3) If no tickets sold, we can safely delete
-    const { error: finalDeleteError } = await pool
+    const { error: finalDeleteError } = await supabase
       .from('films')
       .delete()
       .eq('id', id);
