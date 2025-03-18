@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import {supabase, supabaseAdmin} from '../db'; // must be a Supabase client
+import {supabase, supabaseAdmin} from '../db/db'; // must be a Supabase client
 import { User } from '../types/types'; // or define it in this file
 
 // GET all users

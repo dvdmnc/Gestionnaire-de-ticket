@@ -1,6 +1,6 @@
 import { Response, NextFunction } from "express";
 import { AuthenticatedRequest } from "../types/types";
-import supabase from '../db';  // Import the existing client
+import {supabase} from '../db/db';  // Import the existing client
 
 export const supabaseAuthMiddleware = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
   try {

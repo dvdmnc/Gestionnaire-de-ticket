@@ -6,5 +6,9 @@ console.log("SUPABASE_KEY:", process.env.SUPABASE_KEY ? "Loaded" : "Not Loaded")
 
 const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_KEY;
+const supabaseSecretKey = process.env.SUPABASE_SERVICE_ROLE_KEY
 
-const supabase = createClient(supabaseUrl, supabaseKey);
+export const supabaseAdmin = createClient(supabaseUrl, supabaseSecretKey)
+
+
+export const supabase = createClient(supabaseUrl, supabaseKey);
