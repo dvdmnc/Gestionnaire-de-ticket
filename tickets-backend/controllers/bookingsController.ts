@@ -1,88 +1,143 @@
 import { Request, Response } from 'express';
-const pool = require('../db');
+import supabase from '../db';
 
-export const getBookings = async (req: Request, res: Response): Promise<any> => {
+import { Booking } from '../types/types'; 
+
+
+export const getBookings = async (
+  req: Request,
+  res: Response<Booking[] | { error: string }>
+): Promise<void> => {
   try {
-    const { data, error } = await pool
+    const { data, error } = await supabase
       .from('reservations')
-      .select('*'); // possibly join with 'users' or 'seances'
+      .select('*'); 
 
     if (error) {
-      return res.status(500).json({ error: error.message });
+      res.status(500).json({ error: error.message });
+      return;
     }
-    return res.json(data);
+    
+    res.json((data as Booking[]) || []);
   } catch (err) {
-    return res.status(500).json({ error: 'Error fetching bookings' });
+    res.status(500).json({ error: 'Error fetching bookings' });
   }
 };
 
-export const getBookingById = async (req: Request, res: Response): Promise<any> => {
+
+export const getBookingById = async (
+  req: Request,
+  res: Response<Booking | { error: string }>
+): Promise<void> => {
   const { id } = req.params;
   try {
-    const { data, error } = await pool
+    const { data, error } = await supabase
       .from('reservations')
       .select('*')
       .eq('id', id)
       .single();
 
     if (error) {
-      return res.status(404).json({ error: error.message });
+      res.status(404).json({ error: error.message });
+      return;
     }
-    return res.json(data);
+    if (!data) {
+      res.status(404).json({ error: 'Booking not found' });
+      return;
+    }
+    res.json(data as Booking);
   } catch (err) {
-    return res.status(500).json({ error: 'Error fetching booking' });
+    res.status(500).json({ error: 'Error fetching booking' });
   }
 };
 
-export const createBooking = async (req: Request, res: Response): Promise<any> => {
+
+export const createBooking = async (
+  req: Request,
+  res: Response<Booking | { error: string }>
+): Promise<void> => {
   try {
     const { user_id, seance_id, date_reservation } = req.body;
-    const { data, error } = await pool
+
+    if (!user_id || !seance_id || !date_reservation) {
+      res.status(400).json({ error: 'Missing required fields' });
+      return;
+    }
+
+    const { data, error } = await supabase
       .from('reservations')
       .insert([{ user_id, seance_id, date_reservation }])
-      .single();
+      .select()
+      .single(); 
 
     if (error) {
-      return res.status(400).json({ error: error.message });
+      res.status(400).json({ error: error.message });
+      return;
     }
-    return res.status(201).json(data);
+    res.status(201).json(data as Booking);
   } catch (err) {
-    return res.status(400).json({ error: 'Failed to create booking' });
+    res.status(400).json({ error: 'Failed to create booking' });
   }
 };
 
-export const updateBooking = async (req: Request, res: Response): Promise<any> => {
+
+export const updateBooking = async (
+  req: Request,
+  res: Response<Booking | { error: string }>
+): Promise<void> => {
   const { id } = req.params;
   const { user_id, seance_id, date_reservation } = req.body;
   try {
-    const { data, error } = await pool
+    if (!user_id && !seance_id && !date_reservation) {
+      res.status(400).json({ error: 'No fields to update' });
+      return;
+    }
+
+    const { data, error } = await supabase
       .from('reservations')
       .update({ user_id, seance_id, date_reservation })
       .eq('id', id)
+      .select()
       .single();
 
     if (error) {
-      return res.status(400).json({ error: error.message });
+      res.status(400).json({ error: error.message });
+      return;
     }
-    return res.json(data);
+    if (!data) {
+      res.status(404).json({ error: 'Booking not found' });
+      return;
+    }
+    res.json(data as Booking);
   } catch (err) {
-    return res.status(400).json({ error: 'Failed to update booking' });
+    res.status(400).json({ error: 'Failed to update booking' });
   }
 };
 
-export const deleteBooking = async (req: Request, res: Response): Promise<any> => {
+
+export const deleteBooking = async (
+  req: Request,
+  res: Response<{ message: string } | { error: string }>
+): Promise<void> => {
   const { id } = req.params;
   try {
-    const { error } = await pool
+    const { data, error } = await supabase
       .from('reservations')
       .delete()
-      .eq('id', id);
+      .eq('id', id)
+      .select()
+      .single(); 
 
     if (error) {
-      return res.status(400).json({ error: error.message });
+      res.status(400).json({ error: error.message });
+      return;
     }
-    return res.json({ message: `Booking ${id} deleted.` });
+    if (!data) {
+      res.status(404).json({ error: 'Booking not found or already deleted' });
+      return;
+    }
+    res.json({ message: `Booking ${id} deleted.` });
   } catch (err) {
-    return res.status(500).json({ error: 'Failed to delete booking' });
+    res.status(500).json({ error: 'Failed to delete booking' });
   }
 };

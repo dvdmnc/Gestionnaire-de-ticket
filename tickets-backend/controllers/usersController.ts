@@ -1,94 +1,140 @@
 import { Request, Response } from 'express';
-const pool = require('../db'); 
+import supabase from '../db'; // must be a Supabase client
+import { User } from '../types/types'; // or define it in this file
 
 // GET all users
-export const getUsers = async (req: Request, res: Response): Promise<any> => {
+export const getUsers = async (
+  req: Request,
+  res: Response<User[] | { error: string }>
+): Promise<void> => {
   try {
-    const { data, error } = await pool
+    const { data, error } = await supabase
       .from('users')
       .select('*');
-      
+
     if (error) {
-      return res.status(500).json({ error: error.message });
+      res.status(500).json({ error: error.message });
+      return;
     }
-    return res.json(data);
+    // data might be null => default to []
+    res.json((data as User[]) || []);
   } catch (err) {
-    return res.status(500).json({ error: 'Server error fetching users!' , err:err});
+
+    res.status(500).json({ error: 'Server error fetching users' });
+
   }
 };
 
 // GET user by ID
-export const getUserById = async (req: Request, res: Response): Promise<any> => {
+export const getUserById = async (
+  req: Request,
+  res: Response<User | { error: string }>
+): Promise<void> => {
   const { id } = req.params;
   try {
-    const { data, error } = await pool
+    const { data, error } = await supabase
       .from('users')
       .select('*')
       .eq('id', id)
-      .single(); // single() to fetch exactly one row
+      .single();
 
     if (error) {
-      return res.status(404).json({ error: error.message });
+      res.status(404).json({ error: error.message });
+      return;
     }
-    return res.json(data);
+    if (!data) {
+      res.status(404).json({ error: 'User not found' });
+      return;
+    }
+    res.json(data as User);
   } catch (err) {
-    return res.status(500).json({ error: 'Server error fetching user' });
+    res.status(500).json({ error: 'Server error fetching user' });
   }
 };
 
 // POST create user
-export const createUser = async (req: Request, res: Response): Promise<any> => {
+export const createUser = async (
+  req: Request,
+  res: Response<User | { error: string }>
+): Promise<void> => {
   try {
     const { nom, email, password } = req.body;
-    // Insert user into DB
-    const { data, error } = await pool
+    // Optionally, check for missing fields:
+    if (!nom || !email || !password) {
+      res.status(400).json({ error: 'Missing required fields' });
+      return;
+    }
+
+    const { data, error } = await supabase
       .from('users')
       .insert([{ nom, email, password }])
+      .select()  // So we get the inserted rows
       .single();
 
     if (error) {
-      return res.status(400).json({ error: error.message });
+      res.status(400).json({ error: error.message });
+      return;
     }
-    return res.status(201).json(data);
+    res.status(201).json(data as User);
   } catch (err) {
-    return res.status(400).json({ error: 'Failed to create user' });
+    res.status(400).json({ error: 'Failed to create user' });
   }
 };
 
 // PUT update user
-export const updateUser = async (req: Request, res: Response): Promise<any> => {
+export const updateUser = async (
+  req: Request,
+  res: Response<User | { error: string }>
+): Promise<void> => {
   const { id } = req.params;
   const { nom, email, password } = req.body;
   try {
-    const { data, error } = await pool
+    // Partial or full update
+    const { data, error } = await supabase
       .from('users')
       .update({ nom, email, password })
       .eq('id', id)
+      .select()
       .single();
 
     if (error) {
-      return res.status(400).json({ error: error.message });
+      res.status(400).json({ error: error.message });
+      return;
     }
-    return res.json(data);
+    if (!data) {
+      res.status(404).json({ error: 'User not found' });
+      return;
+    }
+    res.json(data as User);
   } catch (err) {
-    return res.status(400).json({ error: 'Failed to update user' });
+    res.status(400).json({ error: 'Failed to update user' });
   }
 };
 
 // DELETE user
-export const deleteUser = async (req: Request, res: Response): Promise<any> => {
+export const deleteUser = async (
+  req: Request,
+  res: Response<{ message: string } | { error: string }>
+): Promise<void> => {
   const { id } = req.params;
   try {
-    const { error } = await pool
+    const { data, error } = await supabase
       .from('users')
       .delete()
-      .eq('id', id);
+      .eq('id', id)
+      .select()
+      .single();
 
     if (error) {
-      return res.status(400).json({ error: error.message });
+      res.status(400).json({ error: error.message });
+      return;
     }
-    return res.json({ message: `User ${id} deleted.` });
+    if (!data) {
+      res.status(404).json({ error: 'User not found or already deleted' });
+      return;
+    }
+    res.json({ message: `User ${id} deleted.` });
   } catch (err) {
-    return res.status(500).json({ error: 'Failed to delete user' });
+    res.status(500).json({ error: 'Failed to delete user' });
   }
 };

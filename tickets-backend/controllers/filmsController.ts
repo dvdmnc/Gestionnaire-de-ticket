@@ -1,10 +1,12 @@
-import { Response } from "express";
-import pool from "../db";
-import { Request } from "express"; // Import the extended type
-import { AuthenticatedRequest } from "../types/types"; // Import extended request type
+import { Request, Response } from 'express';
+import pool from '../db';
+import { FilmListing, FilmWithSeances, Film } from '../types/types';
+import { AuthenticatedRequest } from "../types/types"; // Import extended request type;
 
-
-export const getFilms = async (req: Request, res: Response): Promise<any> => {
+export const getFilms = async (
+  req: Request,
+  res: Response<FilmListing[] | { error: string }>
+): Promise<any> => {
   try {
     const { data, error } = await pool
       .from('films')
@@ -22,7 +24,10 @@ export const getFilms = async (req: Request, res: Response): Promise<any> => {
 };
 
 
-export const getFilmById = async (req: Request, res: Response): Promise<any> => {
+export const getFilmById = async (
+  req: Request,
+  res: Response<{ film: FilmWithSeances } | { error: string }>
+): Promise<any> => {
   const { id } = req.params;
   try {
     const { data: film, error } = await pool
@@ -106,13 +111,23 @@ export const getFilmById = async (req: Request, res: Response): Promise<any> => 
 };
 
 
-export const createFilm = async (req: AuthenticatedRequest, res: Response): Promise<any> => {
+
+
+export const createFilm = async (
+  req: AuthenticatedRequest,
+  res: Response<
+    { data: Film[] } |
+    { error: string; missingFields?: string[] }
+  >
+): Promise<any> => {
   try {
+    // Check if user is authenticated - this should be handled by middleware,
+    // but we double-check for safety
     if (!req.auth?.user) {
       return res.status(401).json({ error: "Unauthorized: User not logged in" });
     }
 
-    // Check if user is an admin (you should store this info in your Supabase database)
+    // Check if user is an admin
     const { data: userData, error: userError } = await pool
       .from("users")
       .select("isAdmin")
@@ -122,12 +137,46 @@ export const createFilm = async (req: AuthenticatedRequest, res: Response): Prom
     if (userError || !userData?.isAdmin) {
       return res.status(403).json({ error: "Forbidden: User is not an admin" });
     }
+    
+    const {
+      nom,
+      poster,
+      annee,
+      description,
+      duree,
+      realisateur,
+      genre,
+    } = req.body;
 
-    const { nom, poster, annee, description, duree, realisateur, genre } = req.body;
+    // 1) Validate required fields
+    const missingFields: string[] = [];
+    if (!nom) missingFields.push('nom');
+    if (!poster) missingFields.push('poster');
+    if (!annee) missingFields.push('annee');
+    if (!description) missingFields.push('description');
+    if (!duree) missingFields.push('duree');
+    if (!realisateur) missingFields.push('realisateur');
+    if (!genre) missingFields.push('genre');
 
+    if (missingFields.length > 0) {
+      return res.status(400).json({
+        error: 'Missing fields',
+        missingFields,
+      });
+    }
+
+    // 2) Insert if valid
     const { data: film, error } = await pool
-      .from("films")
-      .insert([{ nom, poster, annee, description, duree, realisateur, genre }])
+      .from('films')
+      .insert([{
+        nom,
+        poster,
+        annee,
+        description,
+        duree,
+        realisateur,
+        genre,
+      }])
       .select();
 
     if (error) {
@@ -135,12 +184,14 @@ export const createFilm = async (req: AuthenticatedRequest, res: Response): Prom
     }
     return res.status(201).json({ data: film });
   } catch (err) {
-    return res.status(400).json({ error: "Failed to create film: " + err });
+    return res.status(400).json({ error: 'Failed to create film: ' + err });
   }
 };
 
-
-export const updateFilm = async (req: Request, res: Response): Promise<any>  => {
+export const updateFilm = async (
+  req: Request,
+  res: Response<Film[] | { error: string }>
+): Promise<any> => {
   const { id } = req.params;
   try {
     const {
@@ -177,7 +228,18 @@ export const updateFilm = async (req: Request, res: Response): Promise<any>  => 
 };
 
 
-export const deleteFilm = async (req: Request, res: Response): Promise<any>  => {
+interface ConflictSeance {
+  id: number;
+  heure: string;
+}
+
+export const deleteFilm = async (
+  req: Request,
+  res: Response<
+    { message: string } |
+    { error: string; seances?: ConflictSeance[] }
+  >
+): Promise<any> =>{
   const { id } = req.params;
   try {
     // 1) Find all seances for this film
