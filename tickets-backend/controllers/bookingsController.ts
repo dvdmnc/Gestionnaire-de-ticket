@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import supabase from '../db';
 
-import { Booking } from './types'; 
+import { Booking } from '../types/types'; 
 
 
 export const getBookings = async (

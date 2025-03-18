@@ -23,12 +23,12 @@ export interface Film {
     nom: string;
     dispo: boolean;
     capacity: number;
-    seats_left?: number; // computed later
+    seats_left?: number; 
   }
   
  export interface Seance {
     id: number;
-    heure: string; // datetime
+    heure: string; 
     salles: Salle;
   }
   
@@ -70,6 +70,17 @@ export interface Ticket {
   price: number;
   created_at?: string;
 }
+
+
+export interface User {
+  id: string;         
+  nom: string;
+  email: string;
+  password?: string;  
+  created_at?: string; 
+  updated_at?: string;
+}
+
 
 
 

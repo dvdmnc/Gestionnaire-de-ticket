@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import supabase from '../db';
-import { Ticket } from './types';
+import { Ticket } from '../types/types';
 
 
 export const getTickets = async (

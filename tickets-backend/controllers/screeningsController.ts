@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import supabase from '../db';
-import { Screening } from './types';
+import { Screening } from '../types/types';
 
 
 export const getScreenings = async (

@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import pool from '../db';
-import { FilmListing, FilmWithSeances, Film } from './types';
+import { FilmListing, FilmWithSeances, Film } from '../types/types';
 
 export const getFilms = async (
   req: Request,

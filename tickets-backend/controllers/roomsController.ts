@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import supabase from '../db'; // your Supabase client
-import { Room } from './types'; // or define Room here if you prefer
+import { Room } from '../types/types'; // or define Room here if you prefer
 
 // GET /rooms
 export const getRooms = async (
