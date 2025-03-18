@@ -4,8 +4,11 @@ import {Card, CardContent, CardFooter, CardHeader, CardTitle} from "@/components
 import Image from "next/image";
 import MovieDetails from "@/app/movies/MovieDetails";
 import movieDetails from "@/app/movies/MovieDetails";
-import {useState} from "react";
+import {useEffect, useState} from "react";
+import useFilms from "@/hooks/useFilms";
+import {Film} from "@/classes/Film";
 
+/*
 const movies = [
     {
         id: 1,
@@ -43,29 +46,41 @@ const movies = [
         genre: "Action, Drama",
     },
 ];
+*/
 
 
 export default function MoviesPage() {
     const [open, setOpen] = useState<boolean>();
+    const {getAllFilms} = useFilms();
+    const [movies, setMovies] = useState<Film[]>([]);
+
+    useEffect(() => {
+        console.log("Getting all films");
+
+        getAllFilms().then((films) => {
+            setMovies(films);
+        });
+    }, []);
+
     return (
         <div className="p-6 bg-[#1F2937] min-h-screen">
             <h1 className="text-3xl font-bold mb-6 text-white">Movies Management</h1>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                {movies.map((movie) => (
+                {movies ? movies.map((movie) => (
 
                     <Card onClick={() => {
                         setOpen(true);
                     }} key={movie.id} className="bg-gray-800 text-white">
-                        <MovieDetails setOpen={setOpen} id={movie.id} title={movie.title} poster={movie.poster}
+                        <MovieDetails setOpen={setOpen} id={movie.id} title={movie.nom} poster={movie.poster}
                                       year={movie.id} genre={movie.genre} open={open as boolean}/>
 
                         <CardHeader>
-                            <CardTitle>{movie.title}</CardTitle>
+                            <CardTitle>{movie.nom}</CardTitle>
                         </CardHeader>
                         <CardContent>
                             <Image
                                 src={movie.poster}
-                                alt={movie.title}
+                                alt={movie.nom}
                                 width={150}
                                 height={225}
                                 className="rounded-md w-full h-60 object-cover"
@@ -73,10 +88,10 @@ export default function MoviesPage() {
                             <p className="mt-2 text-gray-400">{movie.genre}</p>
                         </CardContent>
                         <CardFooter>
-                            <p className="text-sm text-gray-500">Year: {movie.year}</p>
+                            <p className="text-sm text-gray-500">Year: {movie.annee}</p>
                         </CardFooter>
                     </Card>
-                ))}
+                )) : <p>Loading...</p>}
             </div>
         </div>
     );
