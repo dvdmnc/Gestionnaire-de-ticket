@@ -19,7 +19,9 @@ export const getUsers = async (
     // data might be null => default to []
     res.json((data as User[]) || []);
   } catch (err) {
+
     res.status(500).json({ error: 'Server error fetching users' });
+
   }
 };
 

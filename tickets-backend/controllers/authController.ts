@@ -13,7 +13,7 @@ class AuthController {
   
   // 🔹 User Registration
   static async register(req: Request, res: Response) {
-    const { email, password, nom } = req.body; // Include `nom` (username)
+    const { email, password, nom } = req.body;
 
     console.log("📩 Incoming Request:", { email, password, nom });
 
@@ -32,18 +32,31 @@ class AuthController {
             return res.status(500).json({ error: "Failed to get user ID from Supabase" });
         }
 
-        // 🔹 Insert user into the `Users` table
-        const { error: dbError } = await supabase
+        // 🔹 Insert user into the `users` table with the same ID from Auth
+        const { data: insertedUser, error: dbError } = await supabase
             .from("users")
-            .insert([{ id: userId, email, nom, created_at: new Date() }]);
+            .insert([{ 
+                id: userId,  // Using the same ID from Auth
+                email, 
+                nom, 
+                created_at: new Date() 
+            }])
+            .select();
 
         if (dbError) {
             console.error("❌ Supabase DB Error:", dbError.message);
+            
+            // 🔹 If insertion fails, attempt to delete the auth user to maintain consistency
+            await supabase.auth.admin.deleteUser(userId);
+            
             return res.status(400).json({ error: "Failed to save user in database" });
         }
 
         console.log("✅ User Registered & Saved in DB:", userId);
-        return res.json({ message: "User registered successfully!", user: { id: userId, email, nom } });
+        return res.json({ 
+            message: "User registered successfully!", 
+            user: { id: userId, email, nom }
+        });
     
     } catch (err) {
         console.error("❌ Fetch Failed Error:", err);

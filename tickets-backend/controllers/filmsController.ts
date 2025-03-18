@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
-import {supabase} from '../db';
+import {supabase} from '../db/db';
 import { FilmListing, FilmWithSeances, Film } from '../types/types';
+import { AuthenticatedRequest } from "../types/types"; // Import extended request type;
 
 export const getFilms = async (
   req: Request,
@@ -111,14 +112,33 @@ export const getFilmById = async (
 
 
 
+
 export const createFilm = async (
-  req: Request,
+  req: AuthenticatedRequest,
   res: Response<
     { data: Film[] } |
     { error: string; missingFields?: string[] }
   >
 ): Promise<any> => {
+  console.log("Auth info:", req.auth);
   try {
+    // Check if user is authenticated - this should be handled by middleware,
+    // but we double-check for safety
+    if (!req.auth?.user) {
+      return res.status(401).json({ error: "Unauthorized: User not logged in" });
+    }
+
+    // Check if user is an admin
+    const { data: userData, error: userError } = await supabase
+      .from("users")
+      .select("isAdmin")
+      .eq("id", req.auth.user.id)
+      .single();
+
+    if (userError || !userData?.isAdmin) {
+      return res.status(403).json({ error: "Forbidden: User is not an admin" });
+    }
+    
     const {
       nom,
       poster,
@@ -163,19 +183,35 @@ export const createFilm = async (
     if (error) {
       return res.status(400).json({ error: error.message });
     }
-    return res.status(201).json({data:film});
+    return res.status(201).json({ data: film });
   } catch (err) {
-    return res.status(400).json({ error: 'Failed to create film' + err });
+    return res.status(400).json({ error: 'Failed to create film: ' + err });
   }
 };
 
-
 export const updateFilm = async (
-  req: Request,
+  req: AuthenticatedRequest,
   res: Response<Film[] | { error: string }>
 ): Promise<any> => {
-  const { id } = req.params;
+  console.log("Auth info:", req.auth);
   try {
+    // Check if user is authenticated
+    if (!req.auth?.user) {
+      return res.status(401).json({ error: "Unauthorized: User not logged in" });
+    }
+
+    // Check if user is an admin
+    const { data: userData, error: userError } = await supabase
+      .from("users")
+      .select("isAdmin")
+      .eq("id", req.auth.user.id)
+      .single();
+
+    if (userError || !userData?.isAdmin) {
+      return res.status(403).json({ error: "Forbidden: User is not an admin" });
+    }
+
+    const { id } = req.params;
     const {
       nom,
       poster,
@@ -186,7 +222,7 @@ export const updateFilm = async (
       genre,
     } = req.body;
 
-    const { data:film, error } = await supabase
+    const { data: film, error } = await supabase
       .from('films')
       .update({
         nom,
@@ -208,38 +244,53 @@ export const updateFilm = async (
     return res.status(400).json({ error: 'Failed to update film' });
   }
 };
-
-
 interface ConflictSeance {
   id: number;
   heure: string;
-}
-
-export const deleteFilm = async (
-  req: Request,
+}export const deleteFilm = async (
+  req: AuthenticatedRequest,
   res: Response<
     { message: string } |
     { error: string; seances?: ConflictSeance[] }
   >
-): Promise<any> =>{
-  const { id } = req.params;
+): Promise<any> => {
+  console.log("Auth info:", req.auth);
+
   try {
+    // Check if user is authenticated
+    if (!req.auth?.user) {
+      return res.status(401).json({ error: "Unauthorized: User not logged in" });
+    }
+
+    // Check if user is an admin (FIXED)
+    const { data: userData, error: userError } = await supabase
+      .from("users")
+      .select("isAdmin")
+      .eq("id", req.auth.user.id)
+      .maybeSingle(); // FIX: Avoid error if no user found
+
+    if (userError || !userData || !userData.isAdmin) {
+      return res.status(403).json({ error: "Forbidden: User is not an admin" });
+    }
+
+    const { id } = req.params;
+
     // 1) Find all seances for this film
     const { data: seancesData, error: seancesError } = await supabase
-      .from('seances')
-      .select('id, heure')
-      .eq('film_id', id);
+      .from("seances")
+      .select("id, heure")
+      .eq("film_id", id);
 
     if (seancesError) {
       return res.status(400).json({ error: seancesError.message });
     }
 
     if (!seancesData || seancesData.length === 0) {
-      // No seances => safe to delete
+      // No seances => safe to delete the film
       const { error: deleteError } = await supabase
-        .from('films')
+        .from("films")
         .delete()
-        .eq('id', id);
+        .eq("id", id);
 
       if (deleteError) {
         return res.status(400).json({ error: deleteError.message });
@@ -248,9 +299,7 @@ export const deleteFilm = async (
     }
 
     // 2) Check if any seance has tickets sold
-    //    We'll gather seance IDs
-    const seanceIds = seancesData.map((s : any) => s.id);
-
+    const seanceIds = seancesData.map((s: any) => s.id);
 
     const { data: soldData, error: soldError } = await supabase
       .from('tickets')
@@ -260,26 +309,24 @@ export const deleteFilm = async (
           seance_id
         )
       `)
-      .in('reservation_id.seance_id', seanceIds);
+      .in("reservation_id.seance_id", seanceIds);
 
     if (soldError) {
       return res.status(400).json({ error: soldError.message });
     }
 
     if (soldData && soldData.length > 0) {
-      // We have tickets sold; find which seances are used
+      // Some seances have tickets sold
       const seanceIdsWithTickets = new Set(
         soldData.map((t: any) => t.reservation_id.seance_id)
       );
 
-      // Filter the original seancesData to find those seances that have tickets
       const conflictSeances = seancesData.filter((s: any) =>
         seanceIdsWithTickets.has(s.id)
       );
 
-      // Return a 403 with the conflicting seances heures
       return res.status(403).json({
-        error: 'Cannot delete film; tickets sold for the following seances',
+        error: "Cannot delete film; tickets sold for the following seances",
         seances: conflictSeances.map((s: any) => ({
           id: s.id,
           heure: s.heure,
@@ -291,14 +338,15 @@ export const deleteFilm = async (
     const { error: finalDeleteError } = await supabase
       .from('films')
       .delete()
-      .eq('id', id);
+      .eq("id", id);
 
     if (finalDeleteError) {
       return res.status(400).json({ error: finalDeleteError.message });
     }
 
     return res.json({ message: `Film ${id} deleted.` });
+
   } catch (err) {
-    return res.status(500).json({ error: 'Failed to delete film' });
+    return res.status(500).json({ error: "Failed to delete film: " + err });
   }
 };
