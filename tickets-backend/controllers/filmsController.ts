@@ -1,8 +1,11 @@
 import { Request, Response } from 'express';
 import pool from '../db';
+import { FilmListing, FilmWithSeances, Film } from './types';
 
-
-export const getFilms = async (req: Request, res: Response): Promise<any> => {
+export const getFilms = async (
+  req: Request,
+  res: Response<FilmListing[] | { error: string }>
+): Promise<any> => {
   try {
     const { data, error } = await pool
       .from('films')
@@ -20,7 +23,10 @@ export const getFilms = async (req: Request, res: Response): Promise<any> => {
 };
 
 
-export const getFilmById = async (req: Request, res: Response): Promise<any> => {
+export const getFilmById = async (
+  req: Request,
+  res: Response<{ film: FilmWithSeances } | { error: string }>
+): Promise<any> => {
   const { id } = req.params;
   try {
     const { data: film, error } = await pool
@@ -105,7 +111,13 @@ export const getFilmById = async (req: Request, res: Response): Promise<any> => 
 
 
 
-export const createFilm = async (req: Request, res: Response): Promise<any>  => {
+export const createFilm = async (
+  req: Request,
+  res: Response<
+    { data: Film[] } |
+    { error: string; missingFields?: string[] }
+  >
+): Promise<any> => {
   try {
     const {
       nom,
@@ -158,7 +170,10 @@ export const createFilm = async (req: Request, res: Response): Promise<any>  => 
 };
 
 
-export const updateFilm = async (req: Request, res: Response): Promise<any>  => {
+export const updateFilm = async (
+  req: Request,
+  res: Response<Film[] | { error: string }>
+): Promise<any> => {
   const { id } = req.params;
   try {
     const {
@@ -195,7 +210,18 @@ export const updateFilm = async (req: Request, res: Response): Promise<any>  => 
 };
 
 
-export const deleteFilm = async (req: Request, res: Response): Promise<any>  => {
+interface ConflictSeance {
+  id: number;
+  heure: string;
+}
+
+export const deleteFilm = async (
+  req: Request,
+  res: Response<
+    { message: string } |
+    { error: string; seances?: ConflictSeance[] }
+  >
+): Promise<any> =>{
   const { id } = req.params;
   try {
     // 1) Find all seances for this film
