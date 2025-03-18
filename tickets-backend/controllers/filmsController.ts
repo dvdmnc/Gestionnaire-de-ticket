@@ -1,8 +1,12 @@
 import { Request, Response } from 'express';
 import pool from '../db';
+import { FilmListing, FilmWithSeances, Film } from '../types/types';
+import { AuthenticatedRequest } from "../types/types"; // Import extended request type;
 
-
-export const getFilms = async (req: Request, res: Response): Promise<any> => {
+export const getFilms = async (
+  req: Request,
+  res: Response<FilmListing[] | { error: string }>
+): Promise<any> => {
   try {
     const { data, error } = await pool
       .from('films')
@@ -20,7 +24,10 @@ export const getFilms = async (req: Request, res: Response): Promise<any> => {
 };
 
 
-export const getFilmById = async (req: Request, res: Response): Promise<any> => {
+export const getFilmById = async (
+  req: Request,
+  res: Response<{ film: FilmWithSeances } | { error: string }>
+): Promise<any> => {
   const { id } = req.params;
   try {
     const { data: film, error } = await pool
@@ -105,8 +112,32 @@ export const getFilmById = async (req: Request, res: Response): Promise<any> => 
 
 
 
-export const createFilm = async (req: Request, res: Response): Promise<any>  => {
+
+export const createFilm = async (
+  req: AuthenticatedRequest,
+  res: Response<
+    { data: Film[] } |
+    { error: string; missingFields?: string[] }
+  >
+): Promise<any> => {
   try {
+    // Check if user is authenticated - this should be handled by middleware,
+    // but we double-check for safety
+    if (!req.auth?.user) {
+      return res.status(401).json({ error: "Unauthorized: User not logged in" });
+    }
+
+    // Check if user is an admin
+    const { data: userData, error: userError } = await pool
+      .from("users")
+      .select("isAdmin")
+      .eq("id", req.auth.user.id)
+      .single();
+
+    if (userError || !userData?.isAdmin) {
+      return res.status(403).json({ error: "Forbidden: User is not an admin" });
+    }
+    
     const {
       nom,
       poster,
@@ -151,14 +182,16 @@ export const createFilm = async (req: Request, res: Response): Promise<any>  => 
     if (error) {
       return res.status(400).json({ error: error.message });
     }
-    return res.status(201).json({data:film});
+    return res.status(201).json({ data: film });
   } catch (err) {
-    return res.status(400).json({ error: 'Failed to create film' + err });
+    return res.status(400).json({ error: 'Failed to create film: ' + err });
   }
 };
 
-
-export const updateFilm = async (req: Request, res: Response): Promise<any>  => {
+export const updateFilm = async (
+  req: Request,
+  res: Response<Film[] | { error: string }>
+): Promise<any> => {
   const { id } = req.params;
   try {
     const {
@@ -195,7 +228,18 @@ export const updateFilm = async (req: Request, res: Response): Promise<any>  => 
 };
 
 
-export const deleteFilm = async (req: Request, res: Response): Promise<any>  => {
+interface ConflictSeance {
+  id: number;
+  heure: string;
+}
+
+export const deleteFilm = async (
+  req: Request,
+  res: Response<
+    { message: string } |
+    { error: string; seances?: ConflictSeance[] }
+  >
+): Promise<any> =>{
   const { id } = req.params;
   try {
     // 1) Find all seances for this film

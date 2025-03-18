@@ -1,88 +1,134 @@
 import { Request, Response } from 'express';
-const pool = require('../db');
+import supabase from '../db';
+import { Ticket } from '../types/types';
 
-export const getTickets = async (req: Request, res: Response): Promise <any> => {
+
+export const getTickets = async (
+  req: Request,
+  res: Response<Ticket[] | { error: string }>
+): Promise<void> => {
   try {
-    const { data, error } = await pool
+    const { data, error } = await supabase
       .from('tickets')
       .select('*');
 
     if (error) {
-      return res.status(500).json({ error: error.message });
+      res.status(500).json({ error: error.message });
+      return;
     }
-    return res.json(data);
+    res.json((data as Ticket[]) || []);
   } catch (err) {
-    return res.status(500).json({ error: 'Error fetching tickets' });
+    res.status(500).json({ error: 'Error fetching tickets' });
   }
 };
 
-export const getTicketById = async (req: Request, res: Response): Promise <any> => {
+
+export const getTicketById = async (
+  req: Request,
+  res: Response<Ticket | { error: string }>
+): Promise<void> => {
   const { id } = req.params;
   try {
-    const { data, error } = await pool
+    const { data, error } = await supabase
       .from('tickets')
       .select('*')
       .eq('id', id)
       .single();
 
     if (error) {
-      return res.status(404).json({ error: error.message });
+      res.status(404).json({ error: error.message });
+      return;
     }
-    return res.json(data);
+    if (!data) {
+      res.status(404).json({ error: 'Ticket not found' });
+      return;
+    }
+    res.json(data as Ticket);
   } catch (err) {
-    return res.status(500).json({ error: 'Error fetching ticket' });
+    res.status(500).json({ error: 'Error fetching ticket' });
   }
 };
 
-export const createTicket = async (req: Request, res: Response): Promise <any> => {
+
+export const createTicket = async (
+  req: Request,
+  res: Response<Ticket | { error: string }>
+): Promise<void> => {
   try {
     const { reservation_id, type, num_siege, price } = req.body;
-    const { data, error } = await pool
+    if (!reservation_id || !type || !num_siege || price == null) {
+      res.status(400).json({ error: 'Missing fields' });
+      return;
+    }
+    const { data, error } = await supabase
       .from('tickets')
       .insert([{ reservation_id, type, num_siege, price }])
+      .select()
       .single();
 
     if (error) {
-      return res.status(400).json({ error: error.message });
+      res.status(400).json({ error: error.message });
+      return;
     }
-    return res.status(201).json(data);
+    res.status(201).json(data as Ticket);
   } catch (err) {
-    return res.status(400).json({ error: 'Failed to create ticket' });
+    res.status(400).json({ error: 'Failed to create ticket' });
   }
 };
 
-export const updateTicket = async (req: Request, res: Response): Promise <any> => {
+
+export const updateTicket = async (
+  req: Request,
+  res: Response<Ticket | { error: string }>
+): Promise<void> => {
   const { id } = req.params;
   const { reservation_id, type, num_siege, price } = req.body;
   try {
-    const { data, error } = await pool
+    const { data, error } = await supabase
       .from('tickets')
       .update({ reservation_id, type, num_siege, price })
       .eq('id', id)
+      .select()
       .single();
 
     if (error) {
-      return res.status(400).json({ error: error.message });
+      res.status(400).json({ error: error.message });
+      return;
     }
-    return res.json(data);
+    if (!data) {
+      res.status(404).json({ error: 'Ticket not found' });
+      return;
+    }
+    res.json(data as Ticket);
   } catch (err) {
-    return res.status(400).json({ error: 'Failed to update ticket' });
+    res.status(400).json({ error: 'Failed to update ticket' });
   }
 };
 
-export const deleteTicket = async (req: Request, res: Response): Promise <any> => {
+
+export const deleteTicket = async (
+  req: Request,
+  res: Response<{ message: string } | { error: string }>
+): Promise<void> => {
   const { id } = req.params;
   try {
-    const { error } = await pool
+    const { data, error } = await supabase
       .from('tickets')
       .delete()
-      .eq('id', id);
+      .eq('id', id)
+      .select()
+      .single();
 
     if (error) {
-      return res.status(400).json({ error: error.message });
+      res.status(400).json({ error: error.message });
+      return;
     }
-    return res.json({ message: `Ticket ${id} deleted.` });
+    if (!data) {
+      res.status(404).json({ error: 'Ticket not found or already deleted' });
+      return;
+    }
+    res.json({ message: `Ticket ${id} deleted.` });
   } catch (err) {
-    return res.status(500).json({ error: 'Failed to delete ticket' });
+    res.status(500).json({ error: 'Failed to delete ticket' });
   }
 };
