@@ -1,8 +1,8 @@
 import { Request, Response } from 'express';
-import {supabase} from '../db/db'; // your Supabase client
-import { Room } from '../types/types'; // or define Room here if you prefer
+import {supabase} from '../db/db'; 
+import { Room } from '../types/types'; 
 
-// GET /rooms
+
 export const getRooms = async (
   req: Request,
   res: Response<Room[] | { error: string }>
@@ -10,7 +10,7 @@ export const getRooms = async (
   try {
     const { data, error } = await supabase
       .from('salles')
-      .select('*'); // or select only relevant columns
+      .select('*'); 
 
     if (error) {
       res.status(500).json({ error: error.message });
@@ -22,7 +22,7 @@ export const getRooms = async (
   }
 };
 
-// GET /rooms/:id
+
 export const getRoomById = async (
   req: Request,
   res: Response<Room | { error: string }>
@@ -49,7 +49,7 @@ export const getRoomById = async (
   }
 };
 
-// POST /rooms
+
 export const createRoom = async (
   req: Request,
   res: Response<Room | { error: string }>
@@ -57,7 +57,7 @@ export const createRoom = async (
   try {
     const { nom, dispo, capacity } = req.body;
 
-    // Optional basic validation
+ 
     if (nom == null || dispo == null || capacity == null) {
       res.status(400).json({ error: 'Missing required fields' });
       return;
@@ -79,7 +79,7 @@ export const createRoom = async (
   }
 };
 
-// PUT /rooms/:id
+
 export const updateRoom = async (
   req: Request,
   res: Response<Room | { error: string }>
@@ -109,7 +109,7 @@ export const updateRoom = async (
   }
 };
 
-// DELETE /rooms/:id
+
 export const deleteRoom = async (
   req: Request,
   res: Response<{ message: string } | { error: string }>

@@ -40,7 +40,7 @@ export interface Film {
  export interface Seance {
     id: number;
     heure: string; 
-    salles: Salle;
+    salle: Salle;
   }
   
   

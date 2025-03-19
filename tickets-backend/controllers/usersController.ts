@@ -1,8 +1,8 @@
 import { Request, Response } from 'express';
-import {supabase, supabaseAdmin} from '../db/db'; // must be a Supabase client
-import { User } from '../types/types'; // or define it in this file
+import {supabase, supabaseAdmin} from '../db/db'; 
+import { User } from '../types/types'; 
 
-// GET all users
+
 export const getUsers = async (
   req: Request,
   res: Response<User[] | { error: string }>
@@ -16,7 +16,7 @@ export const getUsers = async (
       res.status(500).json({ error: error.message });
       return;
     }
-    // data might be null => default to []
+
     res.json((data as User[]) || []);
   } catch (err) {
 
@@ -25,7 +25,7 @@ export const getUsers = async (
   }
 };
 
-// GET user by ID
+
 export const getUserById = async (
   req: Request,
   res: Response<User | { error: string }>
@@ -52,7 +52,7 @@ export const getUserById = async (
   }
 };
 
-//For these two next method (create and update) we just need the id from auth table to be the same as the id from users
+
 export const updateUser = async (
   req: Request,
   res: Response<User | { error: string }>
@@ -175,7 +175,7 @@ export const createUser = async (
 };
 
 
-// DELETE user
+
 export const deleteUser = async (
   req: Request,
   res: Response<{ message: string } | { error: string }>
