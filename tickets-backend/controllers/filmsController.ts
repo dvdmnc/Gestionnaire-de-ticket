@@ -52,7 +52,8 @@ export const getFilmById = async (
             nom,
             dispo,
             capacity
-          )
+          ),
+          seatleft
         )
       `)
       .eq('id', id)
@@ -85,9 +86,8 @@ export const getFilmById = async (
       return;
     }
 
-    // We convert rawFilm.seances to typed Seance objects. Turn array-of-salle into a single salle object. We use promise.all() because we're making async queries to supabase
-    typedFilm.seances = await Promise.all(
-      rawFilm.seances.map(async (rawSeance: any) => {
+    // We convert rawFilm.seances to typed Seance objects. Turn array-of-salle into a single salle object. 
+    typedFilm.seances = rawFilm.seances.map((rawSeance: any) => {
         // If salle is an array, take the first item
         let salleObj = rawSeance.salle;
         if (Array.isArray(salleObj)) {
@@ -105,42 +105,13 @@ export const getFilmById = async (
             nom: salleObj.nom,
             dispo: salleObj.dispo,
             capacity: salleObj.capacity,
-            seats_left: 0, // we'll compute next
           },
+          seatleft: salleObj.seatleft 
         };
 
-        //  get reservations for this seance
-        const { data: reservations, error: reservationsErr } = await supabase
-          .from('reservations')
-          .select('id')
-          .eq('seance_id', seance.id);
+        return seance
 
-        if (reservationsErr) {
-          throw new Error(reservationsErr.message);
-        }
-
-        let ticketsSold = 0;
-        if (reservations && reservations.length > 0) {
-          const reservationIds = reservations.map((r: any) => r.id);
-
-          // get tickets for these reservations
-          const { data: tickets, error: ticketsErr } = await supabase
-            .from('tickets')
-            .select('id')
-            .in('reservation_id', reservationIds);
-
-          if (ticketsErr) {
-            throw new Error(ticketsErr.message);
-          }
-          ticketsSold = tickets ? tickets.length : 0;
-        }
-
-        const seatsLeft = seance.salle!.capacity - ticketsSold;
-        seance.salle!.seats_left = seatsLeft;
-
-        return seance;
       })
-    );
 
     res.json({ film: typedFilm });
   } catch (err) {

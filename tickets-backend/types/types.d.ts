@@ -26,7 +26,6 @@ export interface Film {
     dispo: boolean;
     capacity: number;
     created_at?: string; 
-    seats_left?: number; 
   }
   
   
@@ -41,13 +40,8 @@ export interface Film {
     heure: string;
     prix_base?: number;
   
-    salle?: {
-      id: number;
-      nom: string;
-      dispo: boolean;
-      capacity: number;
-      seats_left?: number;
-    };
+    salle?: Salle;
+    seatleft:number;
   }
   
 
@@ -76,6 +70,7 @@ export interface User {
   password?: string;  
   created_at?: string; 
   updated_at?: string;
+  isAdmin: boolean;
 }
 
 
