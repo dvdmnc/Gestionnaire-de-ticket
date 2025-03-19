@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import {
     AppBar,
     Toolbar,
@@ -12,11 +12,36 @@ import {
 } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import { Link } from 'react-router-dom';
-
-const pages = ['salles', 'Movies', 'Bookings', 'Contact'];
+//    'salles', 'Movies', 'Bookings', 'Contact'
+const pages = [
+    { name: 'Salles', path: 'admin/salles' },
+    { name: 'Movies', path: 'admin/films' },
+    { name: 'Seances', path: 'admin/seances' },
+    { name: 'Contact', path: 'admin/contact' },
+    { name:'Users', path:'admin/users'}
+];
 
 const Navbar: React.FC = () => {
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+    const [isAuthenticated, setIsAuthenticated] = useState(!!localStorage.getItem('token'));
+
+    useEffect(() => {
+        const handleStorageChange = () => {
+            setIsAuthenticated(!!localStorage.getItem('token'));
+        };
+
+        window.addEventListener('storage', handleStorageChange);
+
+        return () => {
+            window.removeEventListener('storage', handleStorageChange);
+        };
+    }, []);
+
+    const handleLogout = () => {
+        localStorage.removeItem('token');
+        setIsAuthenticated(false);
+        window.location.href = '/login'; // Redirect to login page
+    };
 
     const handleOpenNavMenu = (event: React.MouseEvent<HTMLElement>) => {
         setAnchorEl(event.currentTarget);
@@ -72,10 +97,10 @@ const Navbar: React.FC = () => {
                             }}
                         >
                             {pages.map((page) => (
-                                <MenuItem key={page} onClick={handleCloseNavMenu}>
+                                <MenuItem key={page.name} onClick={handleCloseNavMenu}>
                                     <Typography textAlign="center">
-                                        <Link to={`/${page.toLowerCase()}`} style={{ textDecoration: 'none', color: 'inherit' }}>
-                                            {page}
+                                        <Link to={`/${page.path.toLowerCase()}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+                                            {page.name}
                                         </Link>
                                     </Typography>
                                 </MenuItem>
@@ -95,15 +120,26 @@ const Navbar: React.FC = () => {
                     <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
                         {pages.map((page) => (
                             <Button
-                                key={page}
+                                key={page.name}
                                 onClick={handleCloseNavMenu}
                                 sx={{ my: 2, color: 'white', display: 'block' }}
                                 component={Link}
-                                to={`/${page.toLowerCase()}`}
+                                to={`/${page.path.toLowerCase()}`}
                             >
-                                {page}
+                                {page.name}
                             </Button>
                         ))}
+
+                            {isAuthenticated ? (
+                                <Button sx={{ my: 2, color: 'white', display: 'block' }} onClick={handleLogout}>
+                                    Logout
+                                </Button>
+                            ) : (
+                                <Button sx={{ my: 2, color: 'white', display: 'block' }} component={Link} to="/login">
+                                    Login
+                                </Button>
+                            )}
+
                     </Box>
                 </Toolbar>
             </Container>

@@ -59,7 +59,7 @@ export const updateUser = async (
 ): Promise<void> => {
   try {
     const { id } = req.params; 
-    const { email, password, nom } = req.body;
+    const { email, password, nom, isAdmin } = req.body;
 
     let updatedCustomUser: User | null = null;
 
@@ -77,10 +77,10 @@ export const updateUser = async (
     }
 
 
-    if (nom !== undefined) {
+    if (nom !== undefined || isAdmin !== undefined) {
       const { data: userData, error: userError } = await supabase
         .from('users')
-        .update({ nom })
+        .update({ nom, isAdmin })
         .eq('id', id)
         .select()
         .single();
@@ -128,8 +128,8 @@ export const createUser = async (
   res: Response<User | { error: string }>
 ): Promise<void> => {
   try {
-    const { email, password, nom } = req.body;
-    if (!email || !password || !nom) {
+    const { email, password, nom, isAdmin } = req.body;
+    if (!email || !password || !nom || !isAdmin) {
       res.status(400).json({ error: 'Missing email, password, or nom' });
       return;
     }
@@ -158,6 +158,7 @@ export const createUser = async (
           id: userId, 
           nom,
           email,
+          isAdmin:true
         },
       ])
       .select()

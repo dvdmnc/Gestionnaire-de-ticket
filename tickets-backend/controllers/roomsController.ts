@@ -1,12 +1,12 @@
 import { Request, Response } from 'express';
 import {supabase} from '../db/db'; 
-import { Room } from '../types/types'; 
 import { AuthenticatedRequest } from "../types/types"; 
+import { Salle } from '../types/types'; 
 
 
 export const getRooms = async (
   req: Request,
-  res: Response<Room[] | { error: string }>
+  res: Response<Salle[] | { error: string }>
 ): Promise<void> => {
   try {
     const { data, error } = await supabase
@@ -17,7 +17,7 @@ export const getRooms = async (
       res.status(500).json({ error: error.message });
       return;
     }
-    res.json((data as Room[]) || []);
+    res.json((data as Salle[]) || []);
   } catch (err) {
     res.status(500).json({ error: 'Server error fetching rooms' });
   }
@@ -26,7 +26,7 @@ export const getRooms = async (
 
 export const getRoomById = async (
   req: Request,
-  res: Response<Room | { error: string }>
+  res: Response<Salle | { error: string }>
 ): Promise<void> => {
   const { id } = req.params;
   try {
@@ -44,7 +44,7 @@ export const getRoomById = async (
       res.status(404).json({ error: 'Room not found' });
       return;
     }
-    res.json(data as Room);
+    res.json(data as Salle);
   } catch (err) {
     res.status(500).json({ error: 'Server error fetching room' });
   }
@@ -53,7 +53,7 @@ export const getRoomById = async (
 
 export const createRoom = async (
   req: AuthenticatedRequest,
-  res: Response<Room | { error: string }>
+  res: Response<Salle | { error: string }>
 ): Promise<void> => {
   console.log("Auth info:", req.auth);
   try {
@@ -92,7 +92,7 @@ export const createRoom = async (
       res.status(400).json({ error: error.message });
       return;
     }
-    res.status(201).json(data as Room);
+    res.status(201).json(data as Salle);
   } catch (err) {
     res.status(400).json({ error: 'Failed to create room' });
   }
@@ -101,7 +101,7 @@ export const createRoom = async (
 
 export const updateRoom = async (
   req: AuthenticatedRequest,
-  res: Response<Room | { error: string }>
+  res: Response<Salle | { error: string }>
 ): Promise<void> => {
   console.log("Auth info:", req.auth);
   try {
@@ -141,7 +141,7 @@ export const updateRoom = async (
       res.status(404).json({ error: 'Room not found' });
       return;
     }
-    res.json(data as Room);
+    res.json(data as Salle);
   } catch (err) {
     res.status(400).json({ error: 'Failed to update room' });
   }

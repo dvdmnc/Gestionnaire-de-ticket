@@ -1,15 +1,16 @@
-// src/pages/SalleManagement.tsx
 import React, { useState, useEffect } from 'react';
-import SalleList from "./SalleList.tsx";
-import SalleForm  from "./SalleForm.tsx";
-import { Salle } from "../../CRUD/Types.ts";
-import { Container, Button, Modal, Box } from '@mui/material';
-import { getSalles, createSalle, updateSalle} from "../../CRUD/SalleController.ts";
+import SalleList from './SalleList';
+import SalleForm from './SalleForm';
+import { Salle } from '../../CRUD/Types';
+import { Container, Button, Modal, Box, Typography } from '@mui/material';
+import { getSalles, createSalle, updateSalle, deleteSalle } from '../../CRUD/SalleController';
+import { useNotifications } from '@toolpad/core';
 
 const SalleManagement: React.FC = () => {
     const [salles, setSalles] = useState<Salle[]>([]);
     const [selectedSalle, setSelectedSalle] = useState<Salle | null>(null);
     const [open, setOpen] = useState(false);
+    const notifications = useNotifications();
 
     useEffect(() => {
         fetchSalles();
@@ -25,16 +26,24 @@ const SalleManagement: React.FC = () => {
         setOpen(true);
     };
 
+    const handleDelete = async (id: number) => {
+        await deleteSalle(id);
+        notifications.show('Salle deleted successfully', { severity: 'success', autoHideDuration: 2000 });
+        fetchSalles();
+    };
+
     const handleClose = () => {
         setSelectedSalle(null);
         setOpen(false);
     };
 
-    const handleSave = async (salle: Omit<Salle, 'id'> | Salle) => {
-        if ('id' in salle) {
+    const handleSave = async (salle: Salle) => {
+        if (salle.id) {
             await updateSalle(salle);
+            notifications.show('Salle updated successfully', { severity: 'success', autoHideDuration: 2000 });
         } else {
             await createSalle(salle);
+            notifications.show('Salle created successfully', { severity: 'success', autoHideDuration: 2000 });
         }
         fetchSalles();
         handleClose();
@@ -42,10 +51,13 @@ const SalleManagement: React.FC = () => {
 
     return (
         <Container>
+            <Typography variant="h4" gutterBottom>
+                Salle Management
+            </Typography>
             <Button variant="contained" onClick={() => setOpen(true)} sx={{ my: 2 }}>
                 Create New Salle
             </Button>
-            <SalleList salles={salles} onEdit={handleEdit} />
+            <SalleList salles={salles} onEdit={handleEdit} onDelete={handleDelete} />
             <Modal open={open} onClose={handleClose}>
                 <Box sx={modalStyle}>
                     <SalleForm existingSalle={selectedSalle || undefined} onSave={handleSave} />
@@ -60,11 +72,12 @@ const modalStyle = {
     top: '50%',
     left: '50%',
     transform: 'translate(-50%, -50%)',
-    width: 400,
+    width: '90%',
+    maxWidth: 500,
     bgcolor: 'background.paper',
-    border: '2px solid #000',
     boxShadow: 24,
     p: 4,
+    borderRadius: 2,
 };
 
 export default SalleManagement;
