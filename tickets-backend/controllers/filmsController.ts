@@ -1,11 +1,11 @@
 import { Request, Response } from 'express';
 import {supabase} from '../db/db';
-import { FilmListing, FilmWithSeances, Film, Seance } from '../types/types';
+import { FilmWithSeances, Film, Seance } from '../types/types';
 import { AuthenticatedRequest } from "../types/types"; 
 
 export const getFilms = async (
   req: Request,
-  res: Response<FilmListing[] | { error: string }>
+  res: Response<Film[] | { error: string }>
 ): Promise<any> => {
   try {
     const { data, error } = await supabase
@@ -96,7 +96,10 @@ export const getFilmById = async (
 
         const seance: Seance = {
           id: rawSeance.id,
+          film_id:rawSeance.film_id,
+          salle_id:rawSeance.salle_id,
           heure: rawSeance.heure,
+          prix_base:undefined,
           salle: {
             id: salleObj.id,
             nom: salleObj.nom,
@@ -132,8 +135,8 @@ export const getFilmById = async (
           ticketsSold = tickets ? tickets.length : 0;
         }
 
-        const seatsLeft = seance.salle.capacity - ticketsSold;
-        seance.salle.seats_left = seatsLeft;
+        const seatsLeft = seance.salle!.capacity - ticketsSold;
+        seance.salle!.seats_left = seatsLeft;
 
         return seance;
       })
