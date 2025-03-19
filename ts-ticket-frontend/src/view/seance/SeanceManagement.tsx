@@ -39,8 +39,14 @@ const SeanceManagement: React.FC = () => {
 
     const handleSave = async (seance: Seance) => {
         console.log(seance);
-        seance.id ? await updateSeance(seance) : await createSeance(seance);
+       // seance.id ? await updateSeance(seance) : await createSeance(seance);
 
+        if('id' in seance){
+            await updateSeance(seance);
+        }
+        else{
+            await createSeance(seance);
+        }
 
 
         fetchSeances();

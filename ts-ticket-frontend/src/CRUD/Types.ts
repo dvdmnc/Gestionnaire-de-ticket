@@ -1,10 +1,12 @@
-export interface Salle {
-    id: number;
-    nom: string;
-    dispo: boolean;
-    capacity: number;
-    seats_left?: number;
+
+
+// Extend Express Request type
+export interface AuthenticatedRequest  {
+    auth?: {
+        user: User;
+    };
 }
+
 export interface Film {
     id?: number;
     nom: string;
@@ -16,36 +18,28 @@ export interface Film {
     genre?: string;
 }
 
-
-export interface FilmListing {
-    id: number;
-    nom: string;
-    poster: string;
-    annee: number;
-    genre: string;
-}
-
 export interface Salle {
     id: number;
     nom: string;
     dispo: boolean;
     capacity: number;
+    created_at?: string;
     seats_left?: number;
-}
-
-export interface Seance {
-    id?: number;
-    heure: string;
-    salle_id: number;
-    film_id: number;
-    salle?: Salle;
-    film?: Film;
 }
 
 
 export interface FilmWithSeances extends Film {
     seances?: Seance[];
 }
+
+export interface Seance {
+    id: number;
+    film_id: number;
+    salle_id: number;
+    heure: string;
+    prix_base?: number;
+}
+
 
 export interface Booking {
     id: number;
@@ -54,23 +48,6 @@ export interface Booking {
     date_reservation: string;
 }
 
-
-export interface Room {
-    id: number;
-    nom: string;
-    dispo: boolean;
-    capacity: number;
-    created_at?: string;
-}
-
-export interface Screening {
-    id: number;
-    film_id: number;
-    salle_id: number;
-    heure: string;
-    prix_base: number;
-    created_at?: string;
-}
 
 export interface Ticket {
     id: number;
@@ -89,4 +66,8 @@ export interface User {
     password?: string;
     created_at?: string;
     updated_at?: string;
+    isAdmin?: boolean;
 }
+
+
+

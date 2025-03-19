@@ -12,9 +12,10 @@ import {
 import { Seance, Film, Salle } from '../../CRUD/Types';
 import { getFilms } from '../../CRUD/FilmController';
 import { getSalles } from '../../CRUD/SalleController';
-import dayjs, { Dayjs } from 'dayjs';
 import { DateTimePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDateFns} from "@mui/x-date-pickers/AdapterDateFnsV3";
+import {Dayjs} from "dayjs";
+import dayjs from "dayjs";
 
 interface Props {
     existingSeance?: Seance;
@@ -23,10 +24,11 @@ interface Props {
 
 const SeanceForm: React.FC<Props> = ({ existingSeance, onSave }) => {
     const [seance, setSeance] = useState<Seance>({
-        heure: '', // Will be converted to timestamp
         film_id: 0,
-        salle_id: 0
-    });
+        salle_id: 0,
+        heure: '',
+        prix_base: 0,
+    } as Seance);
 
     const [films, setFilms] = useState<Film[]>([]);
     const [salles, setSalles] = useState<Salle[]>([]);
@@ -52,6 +54,7 @@ const SeanceForm: React.FC<Props> = ({ existingSeance, onSave }) => {
     };
 
     const handleDateChange = (newValue: Dayjs | null) => {
+        console.log(newValue);
         setSelectedDate(newValue);
         setSeance((prev) => ({
             ...prev,
@@ -82,7 +85,12 @@ const SeanceForm: React.FC<Props> = ({ existingSeance, onSave }) => {
                 <LocalizationProvider dateAdapter={AdapterDateFns}>
                     <DateTimePicker
                         label="Time (Date & Time)"
-                        onChange={handleDateChange}
+                        onChange={(e:Date | null)=>{
+                            const date = e ? dayjs(e) : null; // Ensure dayjs is properly used
+                            handleDateChange(date);
+                        }
+
+                    }
                         renderInput={(params) => <TextField {...params} fullWidth />}
                     />
                 </LocalizationProvider>
@@ -109,6 +117,17 @@ const SeanceForm: React.FC<Props> = ({ existingSeance, onSave }) => {
                         ))}
                     </Select>
                 </FormControl>
+
+
+                {/*Prix*/}
+                <TextField
+                    label="Prix"
+                    type="number"
+                    name="prix_base"
+                    value={seance.prix_base}
+                    onChange={handleChange}
+                    required
+                />
 
                 <Button type="submit" variant="contained" color="primary">
                     Save

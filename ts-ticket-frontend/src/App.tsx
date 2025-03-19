@@ -9,6 +9,7 @@ import SeanceManagement from "./view/seance/SeanceManagement.tsx";
 import Register from "./view/Auth/Register.tsx";
 import Login from "./view/Auth/Login.tsx";
 import AuthRoute from "./view/Auth/AuthRoute.tsx";
+import UserManagement from "./view/user/UserManagement.tsx";
 
 function App() {
 
@@ -25,6 +26,7 @@ function App() {
                     <Route path={"admin/salles"} element={<SalleManagement />} />
                     <Route path={"admin/films"} element={<FilmManagement />} />
                     <Route path={"admin/seances"} element={<SeanceManagement />} />
+                    <Route path={"admin/users" } element={<UserManagement />} />
                 </Route>
 
                 <Route path="*" element={<Login />} />

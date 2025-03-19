@@ -18,6 +18,7 @@ const pages = [
     { name: 'Movies', path: 'admin/films' },
     { name: 'Seances', path: 'admin/seances' },
     { name: 'Contact', path: 'admin/contact' },
+    { name:'Users', path:'admin/users'}
 ];
 
 const Navbar: React.FC = () => {
