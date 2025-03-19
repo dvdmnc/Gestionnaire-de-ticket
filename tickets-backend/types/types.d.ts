@@ -40,7 +40,9 @@ export interface Film {
     salle_id: number;
     heure: string;
     prix_base?: number;
+  
     salle?: Salle;
+    seatleft:number;
   }
   
 
@@ -69,8 +71,7 @@ export interface User {
   password?: string;  
   created_at?: string; 
   updated_at?: string;
-    is_Admin?: boolean;
-
+  isAdmin: boolean;
 }
 
 
