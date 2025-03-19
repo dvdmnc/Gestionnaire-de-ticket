@@ -1,20 +1,26 @@
-// src/components/SalleForm.tsx
 import React, { useState, useEffect } from 'react';
-import { TextField, Button, Checkbox, FormControlLabel } from '@mui/material';
-import { Salle} from "../../CRUD/Types.ts";
-import { createSalle, updateSalle} from "../../CRUD/SalleController.ts";
+import {
+    TextField,
+    Button,
+    Checkbox,
+    FormControlLabel,
+    Paper,
+    Box,
+    Typography,
+} from '@mui/material';
+import { Salle } from '../../CRUD/Types';
 
 interface Props {
     existingSalle?: Salle;
-    onSave: () => void;
+    onSave: (salle: Salle) => void;
 }
 
 const SalleForm: React.FC<Props> = ({ existingSalle, onSave }) => {
-    const [salle, setSalle] = useState<Omit<Salle, 'id'>>({
+    const [salle, setSalle] = useState<Salle>({
         nom: '',
         dispo: false,
         capacity: 0,
-    });
+    } as Salle);
 
     useEffect(() => {
         if (existingSalle) {
@@ -30,47 +36,55 @@ const SalleForm: React.FC<Props> = ({ existingSalle, onSave }) => {
         }));
     };
 
-    const handleSubmit = async (e: React.FormEvent) => {
+    const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        if (existingSalle) {
-            await updateSalle({ ...salle, id: existingSalle.id });
-        } else {
-            await createSalle(salle);
-        }
-        onSave();
+        onSave(salle);
     };
 
     return (
-        <form onSubmit={handleSubmit}>
-            <TextField
-                label="Name"
-                name="nom"
-                value={salle.nom}
-                onChange={handleChange}
-                required
-            />
-            <FormControlLabel
-                control={
-                    <Checkbox
-                        checked={salle.dispo}
-                        onChange={handleChange}
-                        name="dispo"
-                    />
-                }
-                label="Available"
-            />
-            <TextField
-                label="Capacity"
-                name="capacity"
-                type="number"
-                value={salle.capacity}
-                onChange={handleChange}
-                required
-            />
-            <Button type="submit" variant="contained" color="primary">
-                Save
-            </Button>
-        </form>
+        <Paper elevation={3} sx={{ p: 3 }}>
+            <Typography variant="h6" gutterBottom>
+                {existingSalle ? 'Edit Salle' : 'Create New Salle'}
+            </Typography>
+            <Box
+                component="form"
+                onSubmit={handleSubmit}
+                sx={{
+                    '& .MuiTextField-root': { mb: 2, width: '100%' },
+                    '& .MuiFormControlLabel-root': { mb: 2 },
+                    '& .MuiButton-root': { mt: 2 },
+                }}
+            >
+                <TextField
+                    label="Name"
+                    name="nom"
+                    value={salle.nom}
+                    onChange={handleChange}
+                    required
+                />
+                <FormControlLabel
+                    control={
+                        <Checkbox
+                            checked={salle.dispo}
+                            onChange={handleChange}
+                            name="dispo"
+                        />
+                    }
+                    label="Available"
+                />
+                <TextField
+                    label="Capacity"
+                    name="capacity"
+                    type="number"
+                    value={salle.capacity}
+                    onChange={handleChange}
+                    required
+                />
+                <Button type="submit" variant="contained" color="primary">
+                    Save
+                </Button>
+            </Box>
+        </Paper>
     );
 };
 

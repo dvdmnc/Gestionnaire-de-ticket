@@ -1,10 +1,14 @@
 
 import './App.css'
 import {Route, Routes} from "react-router-dom";
-import SalleList from "./view/salle/SalleList.tsx";
 import Navbar from "./components/NavBar.tsx";
 import {Box} from "@mui/material";
 import SalleManagement from "./view/salle/SalleManagement.tsx";
+import FilmManagement from "./view/films/FilmManagment.tsx";
+import SeanceManagement from "./view/seance/SeanceManagement.tsx";
+import Register from "./view/Auth/Register.tsx";
+import Login from "./view/Auth/Login.tsx";
+import AuthRoute from "./view/Auth/AuthRoute.tsx";
 
 function App() {
 
@@ -12,11 +16,21 @@ function App() {
     <Box sx={{ width:'100%' }}>
         <Navbar />
         <Routes>
-            <Route >
+            <Route>
                 {/* <Route index element={<Home />} />
                   <Route path="about" element={<About />} />*/}
-                <Route path={"salles"} element={<SalleManagement />} />
+                <Route path="/register" element={<Register />} />
+                <Route path="/login" element={<Login />} />
+                <Route element={<AuthRoute />}>
+                    <Route path={"admin/salles"} element={<SalleManagement />} />
+                    <Route path={"admin/films"} element={<FilmManagement />} />
+                    <Route path={"admin/seances"} element={<SeanceManagement />} />
+                </Route>
+
+                <Route path="*" element={<Login />} />
             </Route>
+
+
         </Routes>
     </Box>
   )

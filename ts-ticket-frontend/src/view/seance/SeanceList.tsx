@@ -10,27 +10,24 @@ import {
     Button,
     TablePagination,
 } from '@mui/material';
-import { Salle } from '../../CRUD/Types';
+import { Seance } from '../../CRUD/Types';
 import DeleteButton from "../DeleteButton.tsx";
 
 interface Props {
-    salles: Salle[];
-    onEdit: (salle: Salle) => void;
+    seances: Seance[];
+    onEdit: (seance: Seance) => void;
     onDelete: (id: number) => void;
 }
 
-const SalleList: React.FC<Props> = ({ salles, onEdit, onDelete }) => {
+const SeanceList: React.FC<Props> = ({ seances, onEdit, onDelete }) => {
     const [page, setPage] = React.useState(0);
     const [rowsPerPage, setRowsPerPage] = React.useState(5);
 
     const handleChangePage = (_event: unknown, newPage: number) => {
-
         setPage(newPage);
     };
 
-    const handleChangeRowsPerPage = (
-        event: React.ChangeEvent<HTMLInputElement>
-    ) => {
+    const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
         setRowsPerPage(parseInt(event.target.value, 10));
         setPage(0);
     };
@@ -41,40 +38,32 @@ const SalleList: React.FC<Props> = ({ salles, onEdit, onDelete }) => {
                 <Table stickyHeader>
                     <TableHead>
                         <TableRow>
-                            <TableCell>Name</TableCell>
-                            <TableCell>Available</TableCell>
-                            <TableCell>Capacity</TableCell>
+                            <TableCell>Time</TableCell>
+                            <TableCell>Film</TableCell>
+                            <TableCell>Salle</TableCell>
                             <TableCell>Actions</TableCell>
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {salles
+                        {seances
                             .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                            .map((salle, index) => (
+                            .map((seance, index) => (
                                 <TableRow
-                                    key={salle.id}
+                                    key={seance.id}
                                     hover
                                     style={{
                                         cursor: 'pointer',
                                         backgroundColor: index % 2 === 0 ? '#f5f5f5' : 'white',
                                     }}
                                 >
-                                    <TableCell>{salle.nom}</TableCell>
-                                    <TableCell>{salle.dispo ? 'Yes' : 'No'}</TableCell>
-                                    <TableCell>{salle.capacity}</TableCell>
+                                    <TableCell>{seance.heure}</TableCell>
+                                    <TableCell>{seance.film_id}</TableCell>
+                                    <TableCell>{seance.salle_id}</TableCell>
                                     <TableCell>
-                                        <Button
-                                            variant="contained"
-                                            color="primary"
-                                            onClick={() => onEdit(salle)}
-                                            sx={{ mr: 1 }}
-                                        >
+                                        <Button variant="contained" color="primary" onClick={() => onEdit(seance)} sx={{ mr: 1 }}>
                                             Edit
                                         </Button>
-                                        <DeleteButton
-                                            onDelete={() => onDelete(salle.id)}
-                                        />
-
+                                        <DeleteButton onDelete={() => onDelete(seance.id!)} />
                                     </TableCell>
                                 </TableRow>
                             ))}
@@ -84,7 +73,7 @@ const SalleList: React.FC<Props> = ({ salles, onEdit, onDelete }) => {
             <TablePagination
                 rowsPerPageOptions={[5, 10, 25]}
                 component="div"
-                count={salles.length}
+                count={seances.length}
                 rowsPerPage={rowsPerPage}
                 page={page}
                 onPageChange={handleChangePage}
@@ -94,4 +83,4 @@ const SalleList: React.FC<Props> = ({ salles, onEdit, onDelete }) => {
     );
 };
 
-export default SalleList;
+export default SeanceList;
