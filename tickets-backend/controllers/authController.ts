@@ -11,14 +11,14 @@ const supabase = createClient(supabaseUrl, supabaseKey);
 
 class AuthController {
   
-  // 🔹 User Registration
+
   static async register(req: Request, res: Response) {
-    const { email, password, nom } = req.body; // Include `nom` (username)
+    const { email, password, nom } = req.body;
 
     console.log("📩 Incoming Request:", { email, password, nom });
 
     try {
-        // 🔹 Register user in Supabase Auth
+
         const { data, error } = await supabase.auth.signUp({ email, password });
 
         if (error) {
@@ -26,24 +26,37 @@ class AuthController {
             return res.status(400).json({ error: error.message });
         }
 
-        // 🔹 Get the Supabase User ID
+
         const userId = data.user?.id;
         if (!userId) {
             return res.status(500).json({ error: "Failed to get user ID from Supabase" });
         }
 
-        // 🔹 Insert user into the `Users` table
-        const { error: dbError } = await supabase
+  
+        const { data: insertedUser, error: dbError } = await supabase
             .from("users")
-            .insert([{ id: userId, email, nom, created_at: new Date() }]);
+            .insert([{ 
+                id: userId, 
+                email, 
+                nom, 
+                created_at: new Date() 
+            }])
+            .select();
 
         if (dbError) {
             console.error("❌ Supabase DB Error:", dbError.message);
+            
+
+            await supabase.auth.admin.deleteUser(userId);
+            
             return res.status(400).json({ error: "Failed to save user in database" });
         }
 
         console.log("✅ User Registered & Saved in DB:", userId);
-        return res.json({ message: "User registered successfully!", user: { id: userId, email, nom } });
+        return res.json({ 
+            message: "User registered successfully!", 
+            user: { id: userId, email, nom }
+        });
     
     } catch (err) {
         console.error("❌ Fetch Failed Error:", err);
@@ -52,7 +65,7 @@ class AuthController {
 }
 
 
-  // 🔹 User Login
+
   static async login(req: Request, res: Response) {
     const { email, password } = req.body;
 
@@ -67,7 +80,6 @@ class AuthController {
     }
   }
 
-  // 🔹 Get Logged-in User (Requires Token)
   static async getUser(req: Request, res: Response) {
     const token = req.headers.authorization?.split(' ')[1];
 
@@ -84,7 +96,6 @@ class AuthController {
     }
   }
 
-  // 🔹 Logout
   static async logout(req: Request, res: Response) {
     try {
       await supabase.auth.signOut();

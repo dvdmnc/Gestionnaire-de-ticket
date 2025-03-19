@@ -20,33 +20,36 @@ export interface Film {
     genre?: string;
   }
   
-
- export interface FilmListing {
-    id: number;
-    nom: string;
-    poster: string;
-    annee: number;
-    genre: string;
-  }
-  
  export interface Salle {
     id: number;
     nom: string;
     dispo: boolean;
     capacity: number;
+    created_at?: string; 
     seats_left?: number; 
-  }
-  
- export interface Seance {
-    id: number;
-    heure: string; 
-    salles: Salle;
   }
   
   
  export interface FilmWithSeances extends Film {
     seances?: Seance[];
   }
+
+  export interface Seance {
+    id: number;
+    film_id: number;
+    salle_id: number;
+    heure: string;
+    prix_base?: number;
+  
+    salle?: {
+      id: number;
+      nom: string;
+      dispo: boolean;
+      capacity: number;
+      seats_left?: number;
+    };
+  }
+  
 
   export interface Booking {
     id: number;              
@@ -55,23 +58,6 @@ export interface Film {
     date_reservation: string; 
   }
 
-
-export interface Room {
-  id: number;
-  nom: string;
-  dispo: boolean;
-  capacity: number;
-  created_at?: string; 
-}
-
-export interface Screening {
-  id: number;
-  film_id: number;
-  salle_id: number;
-  heure: string;    
-  prix_base: number;
-  created_at?: string;
-}
 
 export interface Ticket {
   id: number;

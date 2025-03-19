@@ -2,8 +2,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 import express, { Application } from 'express';
-const pool = require('./db');
-const cors = require('cors');
+import cors from 'cors';
 import userRoutes from './routes/users';
 import filmRoutes from './routes/films';
 import salleRoutes from './routes/rooms';

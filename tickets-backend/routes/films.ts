@@ -13,7 +13,7 @@ const router = Router();
 router.get("/", getFilms);
 router.get("/:id", getFilmById);
 router.post("/", supabaseAuthMiddleware, createFilm);
-router.put("/:id", updateFilm);
-router.delete("/:id", deleteFilm);
+router.put("/:id", supabaseAuthMiddleware,updateFilm);
+router.delete("/:id",supabaseAuthMiddleware, deleteFilm);
 
 export default router;

@@ -1,21 +1,21 @@
 import { Request, Response } from 'express';
-import pool from '../db';
-import { FilmListing, FilmWithSeances, Film } from '../types/types';
-import { AuthenticatedRequest } from "../types/types"; // Import extended request type;
+import {supabase} from '../db/db';
+import { FilmWithSeances, Film, Seance } from '../types/types';
+import { AuthenticatedRequest } from "../types/types"; 
 
 export const getFilms = async (
   req: Request,
-  res: Response<FilmListing[] | { error: string }>
+  res: Response<Film[] | { error: string }>
 ): Promise<any> => {
   try {
-    const { data, error } = await pool
+    const { data, error } = await supabase
       .from('films')
-      .select('id, nom, poster,genre,annee'); // Only fields we need for listing
+      .select('id, nom, poster,genre,annee'); 
 
     if (error) {
       return res.status(500).json({ error: error.message });
     }
-    // If no rows, data might be null, so return []
+
     return res.json(data || []);
   } catch (err) {
     console.error(err);
@@ -23,14 +23,17 @@ export const getFilms = async (
   }
 };
 
-
+//Supabase returns a raw data shape that doesn’t perfectly match our TypeScript interfaces.
+// If we just do (rawFilm as FilmWithSeances), TypeScript complains about the “array” vs. “object” mismatch.
+// Building a new object ensures we have exactly the shape we declared in our TS interfaces.
+// It also avoids messy repeated type casts or partial manipulations of rawFilm in place.
 export const getFilmById = async (
   req: Request,
   res: Response<{ film: FilmWithSeances } | { error: string }>
-): Promise<any> => {
+): Promise<void> => {
   const { id } = req.params;
   try {
-    const { data: film, error } = await pool
+    const { data: rawFilm, error } = await supabase
       .from('films')
       .select(`
         id,
@@ -44,7 +47,7 @@ export const getFilmById = async (
         seances(
           id,
           heure,
-          salles(
+          salle: salles!salle_id(
             id,
             nom,
             dispo,
@@ -56,59 +59,96 @@ export const getFilmById = async (
       .single();
 
     if (error) {
-      return res.status(404).json({ error: error.message });
+      res.status(404).json({ error: error.message });
+      return;
     }
-    if (!film) {
-      return res.status(404).json({ error: 'Film not found' });
-    }
-
-    // If there are no seances, we can just return the film
-    if (!film.seances || film.seances.length === 0) {
-      return res.json(film);
+    if (!rawFilm) {
+      res.status(404).json({ error: 'Film not found' });
+      return;
     }
 
-    
-    for (const seance of film.seances) {
-      const salleCapacity = seance.salles.capacity;
+    // We build a new typedFilm object that matches FilmWithSeances
+    const typedFilm: FilmWithSeances = {
+      id: rawFilm.id,
+      nom: rawFilm.nom,
+      poster: rawFilm.poster,
+      annee: rawFilm.annee,
+      description: rawFilm.description,
+      duree: rawFilm.duree,
+      realisateur: rawFilm.realisateur,
+      genre: rawFilm.genre,
+      seances: [], // we fill this next
+    };
 
-      // 1) Reservations for this seance
-      const { data: reservations, error: reservationsErr } = await pool
-        .from('reservations')
-        .select('id')
-        .eq('seance_id', seance.id);
+    if (!rawFilm.seances || rawFilm.seances.length === 0) {
+      res.json({ film: typedFilm });
+      return;
+    }
 
-      if (reservationsErr) {
-        throw new Error(reservationsErr.message);
-      }
-
-      let ticketsSold = 0;
-      if (reservations && reservations.length > 0) {
-        // 2) Tickets for these reservations
-        const reservationIds = reservations.map((r :any) => r.id);
-
-        const { data: tickets, error: ticketsErr } = await pool
-          .from('tickets')
-          .select('id')
-          .in('reservation_id', reservationIds);
-
-        if (ticketsErr) {
-          throw new Error(ticketsErr.message);
+    // We convert rawFilm.seances to typed Seance objects. Turn array-of-salle into a single salle object. We use promise.all() because we're making async queries to supabase
+    typedFilm.seances = await Promise.all(
+      rawFilm.seances.map(async (rawSeance: any) => {
+        // If salle is an array, take the first item
+        let salleObj = rawSeance.salle;
+        if (Array.isArray(salleObj)) {
+          salleObj = salleObj[0];
         }
 
-        ticketsSold = tickets ? tickets.length : 0;
-      }
+        const seance: Seance = {
+          id: rawSeance.id,
+          film_id:rawSeance.film_id,
+          salle_id:rawSeance.salle_id,
+          heure: rawSeance.heure,
+          prix_base:undefined,
+          salle: {
+            id: salleObj.id,
+            nom: salleObj.nom,
+            dispo: salleObj.dispo,
+            capacity: salleObj.capacity,
+            seats_left: 0, // we'll compute next
+          },
+        };
 
-      const seatsLeft = salleCapacity - ticketsSold;
-      // Attach seats_left to the salle object
-      seance.salles.seats_left = seatsLeft;
-    }
+        //  get reservations for this seance
+        const { data: reservations, error: reservationsErr } = await supabase
+          .from('reservations')
+          .select('id')
+          .eq('seance_id', seance.id);
 
-    return res.json({film});
+        if (reservationsErr) {
+          throw new Error(reservationsErr.message);
+        }
+
+        let ticketsSold = 0;
+        if (reservations && reservations.length > 0) {
+          const reservationIds = reservations.map((r: any) => r.id);
+
+          // get tickets for these reservations
+          const { data: tickets, error: ticketsErr } = await supabase
+            .from('tickets')
+            .select('id')
+            .in('reservation_id', reservationIds);
+
+          if (ticketsErr) {
+            throw new Error(ticketsErr.message);
+          }
+          ticketsSold = tickets ? tickets.length : 0;
+        }
+
+        const seatsLeft = seance.salle!.capacity - ticketsSold;
+        seance.salle!.seats_left = seatsLeft;
+
+        return seance;
+      })
+    );
+
+    res.json({ film: typedFilm });
   } catch (err) {
     console.error(err);
-    return res.status(500).json({ error: 'Server error fetching film' });
+    res.status(500).json({ error: 'Server error fetching film' });
   }
 };
+
 
 
 
@@ -120,15 +160,15 @@ export const createFilm = async (
     { error: string; missingFields?: string[] }
   >
 ): Promise<any> => {
+  console.log("Auth info:", req.auth);
   try {
-    // Check if user is authenticated - this should be handled by middleware,
-    // but we double-check for safety
+
     if (!req.auth?.user) {
       return res.status(401).json({ error: "Unauthorized: User not logged in" });
     }
 
-    // Check if user is an admin
-    const { data: userData, error: userError } = await pool
+
+    const { data: userData, error: userError } = await supabase
       .from("users")
       .select("isAdmin")
       .eq("id", req.auth.user.id)
@@ -148,7 +188,7 @@ export const createFilm = async (
       genre,
     } = req.body;
 
-    // 1) Validate required fields
+
     const missingFields: string[] = [];
     if (!nom) missingFields.push('nom');
     if (!poster) missingFields.push('poster');
@@ -165,8 +205,7 @@ export const createFilm = async (
       });
     }
 
-    // 2) Insert if valid
-    const { data: film, error } = await pool
+    const { data: film, error } = await supabase
       .from('films')
       .insert([{
         nom,
@@ -189,11 +228,27 @@ export const createFilm = async (
 };
 
 export const updateFilm = async (
-  req: Request,
+  req: AuthenticatedRequest,
   res: Response<Film[] | { error: string }>
 ): Promise<any> => {
-  const { id } = req.params;
+  console.log("Auth info:", req.auth);
   try {
+
+    if (!req.auth?.user) {
+      return res.status(401).json({ error: "Unauthorized: User not logged in" });
+    }
+
+    const { data: userData, error: userError } = await supabase
+      .from("users")
+      .select("isAdmin")
+      .eq("id", req.auth.user.id)
+      .single();
+
+    if (userError || !userData?.isAdmin) {
+      return res.status(403).json({ error: "Forbidden: User is not an admin" });
+    }
+
+    const { id } = req.params;
     const {
       nom,
       poster,
@@ -204,7 +259,7 @@ export const updateFilm = async (
       genre,
     } = req.body;
 
-    const { data:film, error } = await pool
+    const { data: film, error } = await supabase
       .from('films')
       .update({
         nom,
@@ -226,38 +281,53 @@ export const updateFilm = async (
     return res.status(400).json({ error: 'Failed to update film' });
   }
 };
-
-
 interface ConflictSeance {
   id: number;
   heure: string;
-}
-
-export const deleteFilm = async (
-  req: Request,
+}export const deleteFilm = async (
+  req: AuthenticatedRequest,
   res: Response<
     { message: string } |
     { error: string; seances?: ConflictSeance[] }
   >
-): Promise<any> =>{
-  const { id } = req.params;
+): Promise<any> => {
+  console.log("Auth info:", req.auth);
+
   try {
-    // 1) Find all seances for this film
-    const { data: seancesData, error: seancesError } = await pool
-      .from('seances')
-      .select('id, heure')
-      .eq('film_id', id);
+
+    if (!req.auth?.user) {
+      return res.status(401).json({ error: "Unauthorized: User not logged in" });
+    }
+
+
+    const { data: userData, error: userError } = await supabase
+      .from("users")
+      .select("isAdmin")
+      .eq("id", req.auth.user.id)
+      .maybeSingle();
+
+    if (userError || !userData || !userData.isAdmin) {
+      return res.status(403).json({ error: "Forbidden: User is not an admin" });
+    }
+
+    const { id } = req.params;
+
+
+    const { data: seancesData, error: seancesError } = await supabase
+      .from("seances")
+      .select("id, heure")
+      .eq("film_id", id);
 
     if (seancesError) {
       return res.status(400).json({ error: seancesError.message });
     }
 
     if (!seancesData || seancesData.length === 0) {
-      // No seances => safe to delete
-      const { error: deleteError } = await pool
-        .from('films')
+ 
+      const { error: deleteError } = await supabase
+        .from("films")
         .delete()
-        .eq('id', id);
+        .eq("id", id);
 
       if (deleteError) {
         return res.status(400).json({ error: deleteError.message });
@@ -265,12 +335,9 @@ export const deleteFilm = async (
       return res.json({ message: `Film ${id} deleted.` });
     }
 
-    // 2) Check if any seance has tickets sold
-    //    We'll gather seance IDs
-    const seanceIds = seancesData.map((s : any) => s.id);
+    const seanceIds = seancesData.map((s: any) => s.id);
 
-
-    const { data: soldData, error: soldError } = await pool
+    const { data: soldData, error: soldError } = await supabase
       .from('tickets')
       .select(`
         id,
@@ -278,26 +345,24 @@ export const deleteFilm = async (
           seance_id
         )
       `)
-      .in('reservation_id.seance_id', seanceIds);
+      .in("reservation_id.seance_id", seanceIds);
 
     if (soldError) {
       return res.status(400).json({ error: soldError.message });
     }
 
     if (soldData && soldData.length > 0) {
-      // We have tickets sold; find which seances are used
+
       const seanceIdsWithTickets = new Set(
         soldData.map((t: any) => t.reservation_id.seance_id)
       );
 
-      // Filter the original seancesData to find those seances that have tickets
       const conflictSeances = seancesData.filter((s: any) =>
         seanceIdsWithTickets.has(s.id)
       );
 
-      // Return a 403 with the conflicting seances heures
       return res.status(403).json({
-        error: 'Cannot delete film; tickets sold for the following seances',
+        error: "Cannot delete film; tickets sold for the following seances",
         seances: conflictSeances.map((s: any) => ({
           id: s.id,
           heure: s.heure,
@@ -305,18 +370,18 @@ export const deleteFilm = async (
       });
     }
 
-    // 3) If no tickets sold, we can safely delete
-    const { error: finalDeleteError } = await pool
+    const { error: finalDeleteError } = await supabase
       .from('films')
       .delete()
-      .eq('id', id);
+      .eq("id", id);
 
     if (finalDeleteError) {
       return res.status(400).json({ error: finalDeleteError.message });
     }
 
     return res.json({ message: `Film ${id} deleted.` });
+
   } catch (err) {
-    return res.status(500).json({ error: 'Failed to delete film' });
+    return res.status(500).json({ error: "Failed to delete film: " + err });
   }
 };

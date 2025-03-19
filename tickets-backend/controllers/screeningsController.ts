@@ -1,11 +1,11 @@
 import { Request, Response } from 'express';
-import supabase from '../db';
-import { Screening } from '../types/types';
+import {supabase} from '../db/db';
+import { Seance } from '../types/types';
 
 
 export const getScreenings = async (
   req: Request,
-  res: Response<Screening[] | { error: string }>
+  res: Response<Seance[] | { error: string }>
 ): Promise<void> => {
   try {
     const { data, error } = await supabase
@@ -16,7 +16,7 @@ export const getScreenings = async (
       res.status(500).json({ error: error.message });
       return;
     }
-    res.json((data as Screening[]) || []);
+    res.json((data as Seance[]) || []);
   } catch (err) {
     res.status(500).json({ error: 'Server error fetching seances' });
   }
@@ -25,7 +25,7 @@ export const getScreenings = async (
 
 export const getScreeningById = async (
   req: Request,
-  res: Response<Screening | { error: string }>
+  res: Response<Seance | { error: string }>
 ): Promise<void> => {
   const { id } = req.params;
   try {
@@ -43,7 +43,7 @@ export const getScreeningById = async (
       res.status(404).json({ error: 'Screening not found' });
       return;
     }
-    res.json(data as Screening);
+    res.json(data as Seance);
   } catch (err) {
     res.status(500).json({ error: 'Server error fetching seance' });
   }
@@ -51,7 +51,7 @@ export const getScreeningById = async (
 
 export const createScreening = async (
   req: Request,
-  res: Response<Screening | { error: string }>
+  res: Response<Seance | { error: string }>
 ): Promise<void> => {
   try {
     const { film_id, salle_id, heure, prix_base } = req.body;
@@ -77,7 +77,7 @@ export const createScreening = async (
       res.status(400).json({ error: error.message });
       return;
     }
-    res.status(201).json(data as Screening);
+    res.status(201).json(data as Seance);
   } catch (err) {
     res.status(400).json({ error: 'Failed to create screening' });
   }
@@ -86,7 +86,7 @@ export const createScreening = async (
 
 export const updateScreening = async (
   req: Request,
-  res: Response<Screening | { error: string }>
+  res: Response<Seance| { error: string }>
 ): Promise<void> => {
   const { id } = req.params;
   try {
@@ -107,7 +107,7 @@ export const updateScreening = async (
       res.status(404).json({ error: 'Screening not found' });
       return;
     }
-    res.json(data as Screening);
+    res.json(data as Seance);
   } catch (err) {
     res.status(400).json({ error: 'Failed to update screening' });
   }
