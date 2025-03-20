@@ -6,13 +6,14 @@ import {
   updateRoom,
   deleteRoom
 } from '../controllers/roomsController';
+import { supabaseAuthMiddleware } from "../middleware/supabaseAuthMiddleware"; // Use Supabase auth middleware
 
 const router = Router();
 
 router.get('/', getRooms);
 router.get('/:id', getRoomById);
-router.post('/', createRoom);
-router.put('/:id', updateRoom);
-router.delete('/:id', deleteRoom);
+router.post('/',supabaseAuthMiddleware, createRoom);
+router.put('/:id',supabaseAuthMiddleware, updateRoom);
+router.delete('/:id',supabaseAuthMiddleware, deleteRoom);
 
 export default router;

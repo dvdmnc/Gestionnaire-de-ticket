@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import {supabase} from '../db/db'; 
+import { AuthenticatedRequest } from "../types/types"; 
 import { Salle } from '../types/types'; 
 
 
@@ -51,13 +52,31 @@ export const getRoomById = async (
 
 
 export const createRoom = async (
-  req: Request,
+  req: AuthenticatedRequest,
   res: Response<Salle | { error: string }>
 ): Promise<void> => {
+  console.log("Auth info:", req.auth);
   try {
+    // Check if user is logged in
+    if (!req.auth?.user) {
+      res.status(401).json({ error: "Unauthorized: User not logged in" });
+      return;
+    }
+
+    // Check if user is admin
+    const { data: userData, error: userError } = await supabase
+      .from("users")
+      .select("isAdmin")
+      .eq("id", req.auth.user.id)
+      .single();
+
+    if (userError || !userData?.isAdmin) {
+      res.status(403).json({ error: "Forbidden: User is not an admin" });
+      return;
+    }
+
     const { nom, dispo, capacity } = req.body;
 
- 
     if (nom == null || dispo == null || capacity == null) {
       res.status(400).json({ error: 'Missing required fields' });
       return;
@@ -81,11 +100,30 @@ export const createRoom = async (
 
 
 export const updateRoom = async (
-  req: Request,
+  req: AuthenticatedRequest,
   res: Response<Salle | { error: string }>
 ): Promise<void> => {
-  const { id } = req.params;
+  console.log("Auth info:", req.auth);
   try {
+    // Check if user is logged in
+    if (!req.auth?.user) {
+      res.status(401).json({ error: "Unauthorized: User not logged in" });
+      return;
+    }
+
+    // Check if user is admin
+    const { data: userData, error: userError } = await supabase
+      .from("users")
+      .select("isAdmin")
+      .eq("id", req.auth.user.id)
+      .single();
+
+    if (userError || !userData?.isAdmin) {
+      res.status(403).json({ error: "Forbidden: User is not an admin" });
+      return;
+    }
+
+    const { id } = req.params;
     const { nom, dispo, capacity } = req.body;
 
     const { data, error } = await supabase
@@ -111,11 +149,47 @@ export const updateRoom = async (
 
 
 export const deleteRoom = async (
-  req: Request,
+  req: AuthenticatedRequest,
   res: Response<{ message: string } | { error: string }>
 ): Promise<void> => {
-  const { id } = req.params;
+  console.log("Auth info:", req.auth);
   try {
+    // Check if user is logged in
+    if (!req.auth?.user) {
+      res.status(401).json({ error: "Unauthorized: User not logged in" });
+      return;
+    }
+
+    // Check if user is admin
+    const { data: userData, error: userError } = await supabase
+      .from("users")
+      .select("isAdmin")
+      .eq("id", req.auth.user.id)
+      .single();
+
+    if (userError || !userData?.isAdmin) {
+      res.status(403).json({ error: "Forbidden: User is not an admin" });
+      return;
+    }
+
+    const { id } = req.params;
+    
+    // Check if the room is used in any seances before deletion
+    const { data: seancesData, error: seancesError } = await supabase
+      .from("seances")
+      .select("id")
+      .eq("salle_id", id);
+
+    if (seancesError) {
+      res.status(400).json({ error: seancesError.message });
+      return;
+    }
+
+    if (seancesData && seancesData.length > 0) {
+      res.status(403).json({ error: "Cannot delete room; it is used in existing seances" });
+      return;
+    }
+
     const { data, error } = await supabase
       .from('salles')
       .delete()
