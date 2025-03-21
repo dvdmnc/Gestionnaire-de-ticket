@@ -8,7 +8,7 @@ const Login: React.FC = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const navigate = useNavigate();
-
+    
     // États pour gérer les erreurs et les notifications
     const [error, setError] = useState<string | null>(null);
     const [openSnackbar, setOpenSnackbar] = useState(false);
@@ -20,7 +20,7 @@ const Login: React.FC = () => {
             navigate('/admin/films'); // Redirection après connexion réussie
         } catch (error) {
             console.error('Login failed', error);
-
+            
             // Gestion des différents types d'erreurs
             if (axios.isAxiosError(error)) {
                 if (error.response?.status === 401) {
@@ -35,7 +35,7 @@ const Login: React.FC = () => {
             } else {
                 setError('Une erreur inattendue est survenue');
             }
-
+            
             setOpenSnackbar(true);
         }
     };
@@ -45,8 +45,8 @@ const Login: React.FC = () => {
     };
 
     return (
-        <Box sx={{
-            display: 'flex',
+        <Box sx={{ 
+            display: 'flex', 
             minHeight: '100vh',
             flexDirection: { xs: 'column', md: 'row' },
             backgroundColor: '#ffffff'

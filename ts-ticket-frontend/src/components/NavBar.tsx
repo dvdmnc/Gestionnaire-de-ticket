@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import {
     AppBar,
     Toolbar,
@@ -20,7 +20,7 @@ const pages = [
     { name: 'Movies', path: 'admin/films' },
     { name: 'Seances', path: 'admin/seances' },
     { name: 'Contact', path: 'admin/contact' },
-    { name: 'Users', path: 'admin/users' }
+    { name: 'Users', path: 'admin/users'}
 ];
 
 const Navbar: React.FC = () => {
@@ -111,6 +111,7 @@ const Navbar: React.FC = () => {
                         ))}
                     </Box>
 
+                    {/* Login/Logout button for desktop */}
                     <Box sx={{ display: { xs: 'none', md: 'flex' } }}>
                         {isAuthenticated ? (
                             <Button sx={{ color: '#f44336', borderColor: '#f44336', borderRadius: '8px', textTransform: 'none', fontWeight: 500, '&:hover': { backgroundColor: 'rgba(244, 67, 54, 0.08)', borderColor: '#d32f2f' } }} variant="outlined" onClick={handleLogout}>
