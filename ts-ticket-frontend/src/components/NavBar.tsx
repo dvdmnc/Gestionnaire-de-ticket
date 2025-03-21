@@ -207,7 +207,7 @@ const Navbar: React.FC = () => {
                                     '&::after': {
                                         content: '""',
                                         position: 'absolute',
-                                        bottom: 12,
+                                        bottom: 8,
                                         left: '15%',
                                         width: 0,
                                         height: '2px',

@@ -47,7 +47,7 @@ const Login: React.FC = () => {
     return (
         <Box sx={{ 
             display: 'flex', 
-            minHeight: '100vh',
+            minHeight: '90vh',
             flexDirection: { xs: 'column', md: 'row' },
             backgroundColor: '#ffffff'
         }}>
@@ -63,7 +63,7 @@ const Login: React.FC = () => {
                     src="https://images.unsplash.com/photo-1517604931442-7e0c8ed2963c?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" 
                     alt="Cinema theater" 
                     style={{ 
-                        width: '100%',
+                        width: '90%',
                         height: '100%',
                         objectFit: 'cover',
                         borderRadius: '10px',
