@@ -15,7 +15,7 @@ export const getUsers = async () => {
 };
 
 // Create a new user
-export const createUser = async (user: Omit<User, 'id'>) => {
+export const createUser = async (user: User) => {
     const response = await axios.post<User>(API_URL, user, { headers: getAuthHeaders() });
     return response.data;
 };
