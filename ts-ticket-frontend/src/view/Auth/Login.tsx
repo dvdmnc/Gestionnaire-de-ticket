@@ -47,7 +47,7 @@ const Login: React.FC = () => {
     return (
         <Box sx={{ 
             display: 'flex', 
-            minHeight: '100vh',
+            minHeight: '90vh',
             flexDirection: { xs: 'column', md: 'row' },
             backgroundColor: '#ffffff'
         }}>
