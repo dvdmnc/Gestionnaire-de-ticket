@@ -1,17 +1,6 @@
 import React from 'react';
-import {
-    Table,
-    TableBody,
-    TableCell,
-    TableContainer,
-    TableHead,
-    TableRow,
-    Paper,
-    Button,
-    TablePagination,
-} from '@mui/material';
 import { Film } from '../../CRUD/Types';
-import DeleteButton from "../DeleteButton.tsx";
+import DataTable from "../DataTable.tsx";
 
 interface Props {
     films: Film[];
@@ -20,75 +9,63 @@ interface Props {
 }
 
 const FilmList: React.FC<Props> = ({ films, onEdit, onDelete }) => {
-    const [page, setPage] = React.useState(0);
-    const [rowsPerPage, setRowsPerPage] = React.useState(5);
+    // Define columns for the DataTable
+    const columns = [
+        {
+            id: 'nom',
+            label: 'Title',
+            minWidth: 200,
+        },
+        {
+            id: 'annee',
+            label: 'Year',
+            minWidth: 100,
+            align: 'right'
+        },
+        {
+            id: 'realisateur',
+            label: 'Director',
+            minWidth: 170,
+        },
+        {
+            id: 'genre',
+            label: 'Genre',
+            minWidth: 150,
+        }
+    ];
 
-    const handleChangePage = (_event: unknown, newPage: number) => {
-        setPage(newPage);
-    };
+    // Configure the chip field for genre display
+    const chipConfig = {
+        getValue: (film: Film) => film.genre,
+        getColor: (value: string) => {
+            // Map genres to colors (customize based on your preferences)
+            const colorMap: Record<string, { bg: string; text: string }> = {
+                'Action': { bg: '#f44336', text: 'white' },
+                'Comedy': { bg: '#ff9800', text: 'black' },
+                'Drama': { bg: '#3f51b5', text: 'white' },
+                'Horror': { bg: '#000000', text: 'white' },
+                'Sci-Fi': { bg: '#2196f3', text: 'white' },
+                'Documentary': { bg: '#4caf50', text: 'white' },
+                'Animation': { bg: '#9c27b0', text: 'white' }
+                // Add more genres as needed
+            };
 
-    const handleChangeRowsPerPage = (
-        event: React.ChangeEvent<HTMLInputElement>
-    ) => {
-        setRowsPerPage(parseInt(event.target.value, 10));
-        setPage(0);
+            return colorMap[value] || { bg: '#e0e0e0', text: '#555555' };
+        }
     };
 
     return (
-        <Paper sx={{ width: '100%', overflow: 'hidden' }}>
-            <TableContainer sx={{ maxHeight: 440 }}>
-                <Table stickyHeader>
-                    <TableHead>
-                        <TableRow>
-                            <TableCell>Title</TableCell>
-                            <TableCell>Year</TableCell>
-                            <TableCell>Director</TableCell>
-                            <TableCell>Genre</TableCell>
-                            <TableCell>Actions</TableCell>
-                        </TableRow>
-                    </TableHead>
-                    <TableBody>
-                        {films
-                            .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                            .map((film, index) => (
-                                <TableRow
-                                    key={film.id}
-                                    hover
-                                    style={{
-                                        cursor: 'pointer',
-                                        backgroundColor: index % 2 === 0 ? '#f5f5f5' : 'white',
-                                    }}
-                                >
-                                    <TableCell>{film.nom}</TableCell>
-                                    <TableCell>{film.annee}</TableCell>
-                                    <TableCell>{film.realisateur}</TableCell>
-                                    <TableCell>{film.genre}</TableCell>
-                                    <TableCell>
-                                        <Button
-                                            variant="contained"
-                                            color="primary"
-                                            onClick={() => onEdit(film)}
-                                            sx={{ mr: 1 }}
-                                        >
-                                            Edit
-                                        </Button>
-                                        <DeleteButton onDelete={() => onDelete(film.id!)} />
-                                    </TableCell>
-                                </TableRow>
-                            ))}
-                    </TableBody>
-                </Table>
-            </TableContainer>
-            <TablePagination
-                rowsPerPageOptions={[5, 10, 25]}
-                component="div"
-                count={films.length}
-                rowsPerPage={rowsPerPage}
-                page={page}
-                onPageChange={handleChangePage}
-                onRowsPerPageChange={handleChangeRowsPerPage}
-            />
-        </Paper>
+        <DataTable
+            title="Films"
+            data={films}
+            columns={columns}
+            primaryKey="id"
+            onEdit={onEdit}
+            onDelete={onDelete}
+            avatarField="nom"
+            chipField="genre"
+            chipConfig={chipConfig}
+        />
     );
 };
 

@@ -8,7 +8,7 @@ const Login: React.FC = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const navigate = useNavigate();
-    
+
     // États pour gérer les erreurs et les notifications
     const [error, setError] = useState<string | null>(null);
     const [openSnackbar, setOpenSnackbar] = useState(false);
@@ -20,7 +20,7 @@ const Login: React.FC = () => {
             navigate('/admin/films'); // Redirection après connexion réussie
         } catch (error) {
             console.error('Login failed', error);
-            
+
             // Gestion des différents types d'erreurs
             if (axios.isAxiosError(error)) {
                 if (error.response?.status === 401) {
@@ -35,7 +35,7 @@ const Login: React.FC = () => {
             } else {
                 setError('Une erreur inattendue est survenue');
             }
-            
+
             setOpenSnackbar(true);
         }
     };
@@ -45,30 +45,30 @@ const Login: React.FC = () => {
     };
 
     return (
-        <Box sx={{ 
-            display: 'flex', 
+        <Box sx={{
+            display: 'flex',
             minHeight: '100vh',
             flexDirection: { xs: 'column', md: 'row' },
             backgroundColor: '#ffffff'
         }}>
             {/* Cinema Image Side - Placed on the left in modern designs */}
-            <Box sx={{ 
+            <Box sx={{
                 flexBasis: { md: '55%' },
                 display: { xs: 'none', md: 'flex' }, // Hide on mobile
                 position: 'relative',
                 overflow: 'hidden',
                 padding: '20px 20px 20px 20px',
             }}>
-                <img 
-                    src="https://images.unsplash.com/photo-1517604931442-7e0c8ed2963c?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" 
-                    alt="Cinema theater" 
-                    style={{ 
+                <img
+                    src="https://images.unsplash.com/photo-1517604931442-7e0c8ed2963c?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                    alt="Cinema theater"
+                    style={{
                         width: '100%',
                         height: '100%',
                         objectFit: 'cover',
                         borderRadius: '10px',
                         objectPosition: 'center'
-                    }} 
+                    }}
                 />
                 <Box sx={{
                     position: 'absolute',
@@ -89,7 +89,7 @@ const Login: React.FC = () => {
             </Box>
 
             {/* Login Form Side */}
-            <Box sx={{ 
+            <Box sx={{
                 flexBasis: { md: '45%' },
                 display: 'flex',
                 justifyContent: 'center',
@@ -97,25 +97,25 @@ const Login: React.FC = () => {
                 p: { xs: 3, sm: 6 },
                 backgroundColor: '#ffffff'
             }}>
-                <Box sx={{ 
+                <Box sx={{
                     width: '100%',
                     maxWidth: 450
                 }}>
                     <Box sx={{ mb: 6, textAlign: 'center' }}>
-                        <Typography 
-                            variant="h4" 
-                            component="h1" 
-                            sx={{ 
-                                fontWeight: 700, 
+                        <Typography
+                            variant="h4"
+                            component="h1"
+                            sx={{
+                                fontWeight: 700,
                                 color: '#232323',
                                 mb: 1
                             }}
                         >
                             Welcome Back
                         </Typography>
-                        <Typography 
-                            variant="body1" 
-                            sx={{ 
+                        <Typography
+                            variant="body1"
+                            sx={{
                                 color: '#666666'
                             }}
                         >
@@ -123,13 +123,13 @@ const Login: React.FC = () => {
                         </Typography>
                     </Box>
 
-                    <Box 
-                        component="form" 
-                        onSubmit={handleSubmit} 
-                        sx={{ 
-                            display: 'flex', 
-                            flexDirection: 'column', 
-                            gap: 3 
+                    <Box
+                        component="form"
+                        onSubmit={handleSubmit}
+                        sx={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            gap: 3
                         }}
                     >
                         <TextField
@@ -178,11 +178,11 @@ const Login: React.FC = () => {
                                 }
                             }}
                         />
-                        <Button 
-                            type="submit" 
-                            variant="contained" 
+                        <Button
+                            type="submit"
+                            variant="contained"
                             fullWidth
-                            sx={{ 
+                            sx={{
                                 py: 1.5,
                                 borderRadius: '8px',
                                 fontWeight: 600,
@@ -198,10 +198,10 @@ const Login: React.FC = () => {
                         >
                             Sign In
                         </Button>
-                        <Typography 
-                            variant="body2" 
-                            align="center" 
-                            sx={{ 
+                        <Typography
+                            variant="body2"
+                            align="center"
+                            sx={{
                                 color: '#666666',
                                 mt: 2
                             }}
@@ -211,8 +211,8 @@ const Login: React.FC = () => {
                     </Box>
 
                     {/* Responsive cinema image for mobile */}
-                    <Box 
-                        sx={{ 
+                    <Box
+                        sx={{
                             display: { xs: 'block', md: 'none' },
                             mt: 6,
                             borderRadius: '8px',
@@ -220,31 +220,31 @@ const Login: React.FC = () => {
                             boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)'
                         }}
                     >
-                        <img 
-                            src="https://images.unsplash.com/photo-1517604931442-7e0c8ed2963c?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" 
-                            alt="Cinema theater" 
-                            style={{ 
+                        <img
+                            src="https://images.unsplash.com/photo-1517604931442-7e0c8ed2963c?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                            alt="Cinema theater"
+                            style={{
                                 width: '100%',
                                 height: 'auto',
                                 display: 'block'
-                            }} 
+                            }}
                         />
                     </Box>
                 </Box>
             </Box>
 
             {/* Error Snackbar */}
-            <Snackbar 
-                open={openSnackbar} 
-                autoHideDuration={6000} 
+            <Snackbar
+                open={openSnackbar}
+                autoHideDuration={6000}
                 onClose={handleCloseSnackbar}
                 anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
             >
-                <Alert 
-                    onClose={handleCloseSnackbar} 
-                    severity="error" 
-                    sx={{ 
-                        width: '100%' 
+                <Alert
+                    onClose={handleCloseSnackbar}
+                    severity="error"
+                    sx={{
+                        width: '100%'
                     }}
                 >
                     {error}
