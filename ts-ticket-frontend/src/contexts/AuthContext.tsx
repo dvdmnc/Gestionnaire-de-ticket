@@ -1,23 +1,33 @@
-import { createContext, useContext, ReactNode } from "react";
-import useAuth from "../hooks/useAuth";
+import React, { createContext, useState, useEffect, ReactNode } from 'react';
 
-type AuthContextType = {
-    user: { id: string; name: string; email: string } | null;
-    isLoggedIn: boolean;
-};
+interface AuthContextType {
+    isAuthenticated: boolean;
+    login: (token: string) => void;
+    logout: () => void;
+}
 
-const AuthContext = createContext<AuthContextType | null>(null);
+export const AuthContext = createContext<AuthContextType | null>(null);
 
-export const AuthProvider = ({ children }: { children: ReactNode }) => {
-    const auth = useAuth();
+export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+    const [isAuthenticated, setIsAuthenticated] = useState<boolean>(!!localStorage.getItem('token'));
 
-    return <AuthContext.Provider value={auth}>{children}</AuthContext.Provider>;
-};
+    useEffect(() => {
+        setIsAuthenticated(!!localStorage.getItem('token'));
+    }, []);
 
-export const useAuthContext = () => {
-    const context = useContext(AuthContext);
-    if (!context) {
-        throw new Error("useAuthContext must be used within an AuthProvider");
-    }
-    return context;
+    const login = (token: string) => {
+        localStorage.setItem('token', token);
+        setIsAuthenticated(true);
+    };
+
+    const logout = () => {
+        localStorage.removeItem('token');
+        setIsAuthenticated(false);
+    };
+
+    return (
+        <AuthContext.Provider value={{ isAuthenticated, login, logout }}>
+            {children}
+        </AuthContext.Provider>
+    );
 };
