@@ -104,6 +104,28 @@ class AuthController {
       return res.status(500).json({ error: 'Internal Server Error' });
     }
   }
+
+  static async resetPassword(req: Request, res: Response) {
+    try {
+      const { email } = req.body;
+      if (!email) {
+        return res.status(400).json({ error: 'Email is required' });
+      }
+  
+      const { data, error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: 'http://localhost:5173/update-password',
+      });
+  
+      if (error) {
+        return res.status(400).json({ error: error.message });
+      }
+  
+      return res.json({ message: 'Password reset link sent. Check your email.' });
+    } catch (err) {
+      console.error('resetPassword error:', err);
+      return res.status(500).json({ error: 'Failed to send reset link' });
+    }
+  };
 }
 
 export default AuthController;

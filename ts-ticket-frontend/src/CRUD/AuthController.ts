@@ -27,3 +27,9 @@ export const isAuthenticated = () => {
     const token = localStorage.getItem('token');
     return !!token;
 };
+
+//Password reset
+export async function sendResetPassword(email: string) {
+    const response = await axios.post(`${API_URL}/reset-password`, { email });
+    return response.data; 
+  }

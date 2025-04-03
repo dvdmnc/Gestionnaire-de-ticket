@@ -11,6 +11,8 @@ import Login from "./view/Auth/Login.tsx";
 import AuthRoute from "./view/Auth/AuthRoute.tsx";
 import UserManagement from "./view/user/UserManagement.tsx";
 import BookingManager from "./view/booking/BookingManager.tsx";
+import ForgotPassword from './view/Auth/ForgotPassword.tsx';
+import UpdatePassword from './view/Auth/UpdatePassword.tsx';
 
 function App() {
 
@@ -23,6 +25,8 @@ function App() {
                   <Route path="about" element={<About />} />*/}
                 <Route path="/register" element={<Register />} />
                 <Route path="/login" element={<Login />} />
+                <Route path="/reset-password" element={<ForgotPassword />} />
+                <Route path="/update-password" element={<UpdatePassword />} />
                 <Route element={<AuthRoute />}>
                     <Route path={"admin/salles"} element={<SalleManagement />} />
                     <Route path={"admin/films"} element={<FilmManagement />} />

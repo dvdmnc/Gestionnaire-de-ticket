@@ -20,7 +20,7 @@ export const getBookings = async (
       `);
 
     if (error) {
-      res.status(500).json({ error: error.message });
+      res.status(500).json({ error: error.message});
       return;
     }
 

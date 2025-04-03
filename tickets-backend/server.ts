@@ -34,7 +34,7 @@ app.use(express.json());
 app.use('/auth', authRoutes);
 
 app.use(cors({
-    origin: "http://localhost:3000", // Allow requests only from this origin
+    origin: "http://localhost:5173", // Allow requests only from this origin
     methods: "GET,POST,PUT,DELETE",
     allowedHeaders: "Content-Type,Authorization"
 }));

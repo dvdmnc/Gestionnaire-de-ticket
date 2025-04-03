@@ -206,7 +206,13 @@ const Login: React.FC = () => {
                                 mt: 2
                             }}
                         >
-                            Having trouble signing in? Contact IT support
+                            Having trouble signing in? 
+                            <span
+                            style={{ color: '#3f51b5', cursor: 'pointer', marginLeft:2 }}
+                            onClick={() => navigate('/reset-password')}
+                            >
+                            Reset your password
+                        </span>
                         </Typography>
                     </Box>
 
