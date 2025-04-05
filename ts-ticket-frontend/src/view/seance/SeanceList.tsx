@@ -18,12 +18,12 @@ const SeanceList: React.FC<Props> = ({ seances, onEdit, onDelete }) => {
         },
         {
             id: 'film_id',
-            label: 'Film',
+            label: 'Movie',
             minWidth: 170,
         },
         {
             id: 'salle_id',
-            label: 'Salle',
+            label: 'Room Number',
             minWidth: 120,
         }
     ];

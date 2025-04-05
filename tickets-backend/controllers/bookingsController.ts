@@ -230,10 +230,13 @@ export const updateBooking = async (
    
     let newTickets: Ticket[] = [];
     if (tickets !== undefined) {
+      
+      const reservationIdNum = Number(id);
+
       const { error: deleteError } = await supabase
         .from('tickets')
         .delete()
-        .eq('reservation_id', id);
+        .eq('reservation_id', reservationIdNum);
 
       if (deleteError) {
         res.status(400).json({ error: deleteError.message });
@@ -242,7 +245,7 @@ export const updateBooking = async (
 
 
       const ticketPayload = tickets.map((t:any) => ({
-        reservation_id: Number(id),
+        reservation_id: reservationIdNum,
         type: t.type,
         num_siege: t.num_siege,
         price: t.price,
