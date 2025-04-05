@@ -16,10 +16,10 @@ import MenuIcon from '@mui/icons-material/Menu';
 import { Link } from 'react-router-dom';
 
 const pages = [
-    { name: 'Salles', path: 'admin/salles' },
-    { name: 'Films', path: 'admin/films' },
-    { name: 'Seances', path: 'admin/seances' },
-    { name: 'Reservations', path: 'admin/bookings' },
+    { name: 'Rooms', path: 'admin/salles' },
+    { name: 'Movies', path: 'admin/films' },
+    { name: 'Screenings', path: 'admin/seances' },
+    { name: 'Bookings', path: 'admin/bookings' },
     { name: 'Users', path: 'admin/users'},
     { name: 'Contact', path: 'admin/contact' },
 ];
