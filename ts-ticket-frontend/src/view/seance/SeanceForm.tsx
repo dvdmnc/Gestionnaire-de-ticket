@@ -57,8 +57,8 @@ const SeanceForm: React.FC<Props> = ({ existingSeance, onSave, onClose }) => {
     };
 
     const handleDateChange = (newValue: Dayjs | null) => {
-        console.log(newValue);
         setSelectedDate(newValue);
+        if(!newValue.isValid()) return
         setSeance((prev) => ({
             ...prev,
             heure: newValue ? newValue.toISOString() : '', // Convert to ISO string format

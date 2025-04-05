@@ -55,7 +55,6 @@ export const createRoom = async (
   req: AuthenticatedRequest,
   res: Response<Salle | { error: string }>
 ): Promise<void> => {
-  console.log("Auth info:", req.auth);
   try {
     // Check if user is logged in
     if (!req.auth?.user) {
@@ -103,7 +102,6 @@ export const updateRoom = async (
   req: AuthenticatedRequest,
   res: Response<Salle | { error: string }>
 ): Promise<void> => {
-  console.log("Auth info:", req.auth);
   try {
     // Check if user is logged in
     if (!req.auth?.user) {
@@ -152,7 +150,6 @@ export const deleteRoom = async (
   req: AuthenticatedRequest,
   res: Response<{ message: string } | { error: string }>
 ): Promise<void> => {
-  console.log("Auth info:", req.auth);
   try {
     // Check if user is logged in
     if (!req.auth?.user) {

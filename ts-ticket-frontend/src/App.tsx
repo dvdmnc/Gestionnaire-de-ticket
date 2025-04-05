@@ -15,6 +15,7 @@ import ForgotPassword from './view/Auth/ForgotPassword.tsx';
 import UpdatePassword from './view/Auth/UpdatePassword.tsx';
 import Contact from './view/Contact.tsx';
 import LandingPage from './client/LandingPage.tsx';
+import AdminRoute from './view/Auth/AdminRoute.tsx';
 
 function App() {
 
@@ -22,12 +23,11 @@ function App() {
     <Box sx={{ width:'100%' }}>
         <Navbar />
         <Routes>
-            <Route>
                 <Route path="/register" element={<Register />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/reset-password" element={<ForgotPassword />} />
                 <Route path="/update-password" element={<UpdatePassword />} />
-                <Route element={<AuthRoute />}>
+                <Route element={<AdminRoute />}>
                     <Route path={"admin/salles"} element={<SalleManagement />} />
                     <Route path={"admin/films"} element={<FilmManagement />} />
                     <Route path={"admin/seances"} element={<SeanceManagement />} />
@@ -36,12 +36,11 @@ function App() {
                     <Route path={"admin/contact"} element={<Contact/>} />
                 </Route>
 
-                <Route path="*" element={<Login />} />
-            </Route>
-            <Route>
               <Route path={"client/home"} element={<LandingPage />} />
+              <Route element={<AuthRoute />}>
+                <Route path={"client/profile"} element={/* <UserProfile /> */ ""} />
             </Route>
-
+            <Route path="*" element={<Login />} />
 
         </Routes>
     </Box>

@@ -53,7 +53,6 @@ export const createScreening = async (
   req: AuthenticatedRequest,
   res: Response<Seance | { error: string }>
 ): Promise<void> => {
-  console.log("Auth info:", req.auth);
   try {
     // Check if user is logged in
     if (!req.auth?.user) {
@@ -67,9 +66,6 @@ export const createScreening = async (
       .select("isAdmin")
       .eq("id", req.auth.user.id)
       .single();
-
-    console.log("User data:", userData);
-    console.log("User error:", userError);
 
     // Strict comparison of isAdmin to true
     if (userError || userData?.isAdmin !== true) {
@@ -101,7 +97,6 @@ export const createScreening = async (
     }
     res.status(201).json(data as Seance);
   } catch (err) {
-    console.error("Create screening error:", err);
     res.status(400).json({ error: 'Failed to create screening' });
   }
 };
@@ -111,7 +106,6 @@ export const updateScreening = async (
   req: AuthenticatedRequest,
   res: Response<Seance| { error: string }>
 ): Promise<void> => {
-  console.log("Auth info:", req.auth);
   try {
     // Check if user is logged in
     if (!req.auth?.user) {
@@ -185,7 +179,6 @@ export const updateScreening = async (
     }
     res.json(data as Seance);
   } catch (err) {
-    console.error("Update screening error:", err);
     res.status(400).json({ error: 'Failed to update screening' });
   }
 };
@@ -195,7 +188,6 @@ export const deleteScreening = async (
   req: AuthenticatedRequest,
   res: Response<{ message: string } | { error: string }>
 ): Promise<void> => {
-  console.log("Auth info:", req.auth);
   try {
     // Check if user is logged in
     if (!req.auth?.user) {
@@ -251,7 +243,6 @@ export const deleteScreening = async (
     }
     res.json({ message: `Seance ${id} deleted.` });
   } catch (err) {
-    console.error("Delete screening error:", err);
     res.status(500).json({ error: 'Failed to delete screening' });
   }
 };

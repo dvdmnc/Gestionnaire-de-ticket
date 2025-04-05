@@ -18,7 +18,6 @@ export const getFilms = async (
 
     return res.json(data || []);
   } catch (err) {
-    console.error(err);
     return res.status(500).json({ error: 'Server error fetching films' });
   }
 };
@@ -115,7 +114,6 @@ export const getFilmById = async (
 
     res.json({ film: typedFilm });
   } catch (err) {
-    console.error(err);
     res.status(500).json({ error: 'Server error fetching film' });
   }
 };
@@ -131,7 +129,6 @@ export const createFilm = async (
     { error: string; missingFields?: string[] }
   >
 ): Promise<any> => {
-  console.log("Auth info:", req.auth);
   try {
 
     if (!req.auth?.user) {
@@ -202,7 +199,6 @@ export const updateFilm = async (
   req: AuthenticatedRequest,
   res: Response<Film[] | { error: string }>
 ): Promise<any> => {
-  console.log("Auth info:", req.auth);
   try {
 
     if (!req.auth?.user) {

@@ -14,6 +14,9 @@ export const loginUser = async (email: string, password: string) => {
     if (response.data.token) {
         localStorage.setItem('token', response.data.token);
     }
+    if(response.data.isAdmin){
+        localStorage.setItem('isAdmin', response.data.isAdmin)
+    }
     return response.data;
 };
 
@@ -27,6 +30,11 @@ export const isAuthenticated = () => {
     const token = localStorage.getItem('token');
     return !!token;
 };
+
+//Check if user Admin
+export const isAdmin = () => {
+     return localStorage.getItem('isAdmin');
+  };
 
 //Password reset
 export async function sendResetPassword(email: string) {

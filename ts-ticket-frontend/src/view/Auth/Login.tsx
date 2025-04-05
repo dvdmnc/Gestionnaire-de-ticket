@@ -9,19 +9,20 @@ const Login: React.FC = () => {
     const [password, setPassword] = useState('');
     const navigate = useNavigate();
     
-    // États pour gérer les erreurs et les notifications
+   
     const [error, setError] = useState<string | null>(null);
     const [openSnackbar, setOpenSnackbar] = useState(false);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
-            await loginUser(email, password);
-            navigate('/admin/films'); // Redirection après connexion réussie
+            const data =  await loginUser(email, password);
+            data.isAdmin ? navigate('/admin/films') : navigate('client/home')
+             // Redirection après connexion réussie vers panneau d'Administration ou côté client
         } catch (error) {
             console.error('Login failed', error);
             
-            // Gestion des différents types d'erreurs
+            
             if (axios.isAxiosError(error)) {
                 if (error.response?.status === 401) {
                     setError('Email ou mot de passe incorrect');
@@ -51,10 +52,10 @@ const Login: React.FC = () => {
             flexDirection: { xs: 'column', md: 'row' },
             backgroundColor: '#ffffff'
         }}>
-            {/* Cinema Image Side - Placed on the left in modern designs */}
+            
             <Box sx={{
                 flexBasis: { md: '55%' },
-                display: { xs: 'none', md: 'flex' }, // Hide on mobile
+                display: { xs: 'none', md: 'flex' }, 
                 position: 'relative',
                 overflow: 'hidden',
                 padding: '20px 20px 20px 20px',
@@ -88,7 +89,7 @@ const Login: React.FC = () => {
                 </Box>
             </Box>
 
-            {/* Login Form Side */}
+            
             <Box sx={{
                 flexBasis: { md: '45%' },
                 display: 'flex',
@@ -216,7 +217,7 @@ const Login: React.FC = () => {
                         </Typography>
                     </Box>
 
-                    {/* Responsive cinema image for mobile */}
+                    
                     <Box
                         sx={{
                             display: { xs: 'block', md: 'none' },
@@ -239,7 +240,7 @@ const Login: React.FC = () => {
                 </Box>
             </Box>
 
-            {/* Error Snackbar */}
+            
             <Snackbar
                 open={openSnackbar}
                 autoHideDuration={6000}
