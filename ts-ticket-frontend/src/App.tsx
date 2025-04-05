@@ -14,6 +14,7 @@ import BookingManager from "./view/booking/BookingManager.tsx";
 import ForgotPassword from './view/Auth/ForgotPassword.tsx';
 import UpdatePassword from './view/Auth/UpdatePassword.tsx';
 import Contact from './view/Contact.tsx';
+import LandingPage from './client/LandingPage.tsx';
 
 function App() {
 
@@ -22,8 +23,6 @@ function App() {
         <Navbar />
         <Routes>
             <Route>
-                {/* <Route index element={<Home />} />
-                  <Route path="about" element={<About />} />*/}
                 <Route path="/register" element={<Register />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/reset-password" element={<ForgotPassword />} />
@@ -38,6 +37,9 @@ function App() {
                 </Route>
 
                 <Route path="*" element={<Login />} />
+            </Route>
+            <Route>
+              <Route path={"client/home"} element={<LandingPage />} />
             </Route>
 
 
