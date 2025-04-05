@@ -6,29 +6,38 @@ const API_URL = 'http://localhost:5000/films';
 // Helper function to get the token
 const getAuthHeaders = () => {
     const token = localStorage.getItem('token');
-    if (!token) throw new Error('No authentication token found');
+    if (!token) return {};  // Return empty headers if no token
     return { Authorization: `Bearer ${token}` };
 };
 
-// Fetch all films
+// Fetch all films - public access, doesn't require authentication
 export const getFilms = async () => {
-    const response = await axios.get<Film[]>(API_URL, { headers: getAuthHeaders() });
+    const response = await axios.get<Film[]>(API_URL);
     return response.data;
 };
 
-// Create a new film
+// Create a new film - requires authentication
 export const createFilm = async (film: Omit<Film, 'id'>) => {
-    const response = await axios.post<Film>(API_URL, film, { headers: getAuthHeaders() });
+    const headers = getAuthHeaders();
+    if (!headers.Authorization) throw new Error('Authentication required to create films');
+    
+    const response = await axios.post<Film>(API_URL, film, { headers });
     return response.data;
 };
 
-// Update an existing film
+// Update an existing film - requires authentication
 export const updateFilm = async (film: Film) => {
-    const response = await axios.put<Film>(`${API_URL}/${film.id}`, film, { headers: getAuthHeaders() });
+    const headers = getAuthHeaders();
+    if (!headers.Authorization) throw new Error('Authentication required to update films');
+    
+    const response = await axios.put<Film>(`${API_URL}/${film.id}`, film, { headers });
     return response.data;
 };
 
-// Delete a film
+// Delete a film - requires authentication
 export const deleteFilm = async (id: number) => {
-    await axios.delete(`${API_URL}/${id}`, { headers: getAuthHeaders() });
+    const headers = getAuthHeaders();
+    if (!headers.Authorization) throw new Error('Authentication required to delete films');
+    
+    await axios.delete(`${API_URL}/${id}`, { headers });
 };
