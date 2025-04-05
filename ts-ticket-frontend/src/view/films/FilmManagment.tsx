@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import FilmList from './FilmList';
-import FilmForm from './FilmForm';
-import { Film } from '../../CRUD/Types';
+import FilmList from './FilmList.tsx';
+import FilmForm from './FilmForm.tsx';
+import { Film } from '../../CRUD/Types.ts';
 import { Container, Button, Modal, Box, Typography } from '@mui/material';
 import { getFilms, createFilm, updateFilm, deleteFilm} from "../../CRUD/FilmController.ts";
 import { useNotifications } from '@toolpad/core';
+
 
 const FilmManagement: React.FC = () => {
     const [films, setFilms] = useState<Film[]>([]);
@@ -60,7 +61,7 @@ const FilmManagement: React.FC = () => {
             <FilmList films={films} onEdit={handleEdit} onDelete={handleDelete} />
             <Modal open={open} onClose={handleClose}>
                 <Box sx={{ p: 4 }}>
-                    <FilmForm existingFilm={selectedFilm || undefined} onSave={handleSave} />
+                    <FilmForm existingFilm={selectedFilm || undefined} onSave={handleSave} onClose={handleClose}/>
                 </Box>
             </Modal>
         </Container>

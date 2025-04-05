@@ -1,5 +1,5 @@
 import React from 'react';
-import { Seance } from '../../CRUD/Types';
+import { Seance } from '../../CRUD/Types.ts';
 import DataTable from "../DataTable.tsx";
 
 interface Props {

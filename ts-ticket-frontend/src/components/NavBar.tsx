@@ -17,10 +17,11 @@ import { Link } from 'react-router-dom';
 
 const pages = [
     { name: 'Salles', path: 'admin/salles' },
-    { name: 'Movies', path: 'admin/films' },
+    { name: 'Films', path: 'admin/films' },
     { name: 'Seances', path: 'admin/seances' },
+    { name: 'Reservations', path: 'admin/bookings' },
+    { name: 'Users', path: 'admin/users'},
     { name: 'Contact', path: 'admin/contact' },
-    { name: 'Users', path: 'admin/users'}
 ];
 
 const Navbar: React.FC = () => {
@@ -96,7 +97,7 @@ const Navbar: React.FC = () => {
                                 onClose={handleCloseNavMenu}
                                 sx={{ display: { xs: 'block', md: 'none' }, '& .MuiPaper-root': { borderRadius: '8px', boxShadow: '0 6px 20px rgba(0, 0, 0, 0.1)', mt: 1.5 } }}
                             >
-                                {pages.map((page) => (
+                                {isAuthenticated && pages.map((page) => (
                                     <MenuItem key={page.name} onClick={handleCloseNavMenu}>
                                         <Typography textAlign="center">
                                             <Link to={`/${page.path.toLowerCase()}`} style={{ textDecoration: 'none', color: '#232323' }}>{page.name}</Link>
@@ -124,7 +125,7 @@ const Navbar: React.FC = () => {
                         </Typography>
 
                         <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' }, justifyContent: 'center' }}>
-                            {pages.map((page) => (
+                            {isAuthenticated && pages.map((page) => (
                                 <Button key={page.name} sx={{ mx: 1, my: 2, color: '#555555', fontSize: '0.95rem', textTransform: 'none', fontWeight: 500, position: 'relative', '&:hover': { backgroundColor: 'transparent', color: '#3f51b5', '&::after': { width: '70%' } }, '&::after': { content: '""', position: 'absolute', bottom: 6, left: '15%', width: 0, height: '2px', backgroundColor: '#3f51b5', transition: 'width 0.3s ease' } }} component={Link} to={`/${page.path.toLowerCase()}`}>
                                     {page.name}
                                 </Button>

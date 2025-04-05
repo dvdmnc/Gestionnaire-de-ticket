@@ -5,15 +5,18 @@ import {
     Paper,
     Box,
     Typography,
+    IconButton,
 } from '@mui/material';
 import { Film } from '../../CRUD/Types';
+import CloseIcon from '@mui/icons-material/Close';
 
 interface Props {
     existingFilm?: Film;
     onSave: (film: Film) => void;
+    onClose?: () => void;
 }
 
-const FilmForm: React.FC<Props> = ({ existingFilm, onSave }) => {
+const FilmForm: React.FC<Props> = ({ existingFilm, onSave, onClose }) => {
     const [film, setFilm] = useState<Film>({
         nom: '',
         poster: '',
@@ -45,9 +48,18 @@ const FilmForm: React.FC<Props> = ({ existingFilm, onSave }) => {
 
     return (
         <Paper elevation={3} sx={{ p: 3 }}>
-            <Typography variant="h6" gutterBottom>
-                {existingFilm ? 'Edit Film' : 'Create New Film'}
-            </Typography>
+            <Box sx={{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+                <Typography variant="h6" gutterBottom>
+                        {existingFilm ? 'Edit Film' : 'Create New Film'}
+                </Typography>
+                {onClose && (
+                        <IconButton
+                        onClick={onClose}
+                        >
+                            <CloseIcon />
+                        </IconButton>
+                    )}
+            </Box>
             <Box
                 component="form"
                 onSubmit={handleSubmit}

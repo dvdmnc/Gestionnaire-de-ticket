@@ -1,5 +1,5 @@
 import React from 'react';
-import { User } from '../../CRUD/Types';
+import { User } from '../../CRUD/Types.ts';
 import DataTable from "../DataTable.tsx";
 
 interface Props {

@@ -59,7 +59,7 @@ const BookingManager: React.FC = () => {
             <BookingList bookings={bookings} onEdit={handleEdit} onDelete={handleDelete} />
             <Modal open={open} onClose={handleClose}>
                 <Box sx={{ p: 4 }}>
-                    <BookingForm existingBooking={selectedBooking || undefined} onSave={handleSave} />
+                    <BookingForm existingBooking={selectedBooking || undefined} onSave={handleSave} onClose={handleClose}/>
                 </Box>
             </Modal>
         </Container>

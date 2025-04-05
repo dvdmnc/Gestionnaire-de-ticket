@@ -13,6 +13,7 @@ import UserManagement from "./view/user/UserManagement.tsx";
 import BookingManager from "./view/booking/BookingManager.tsx";
 import ForgotPassword from './view/Auth/ForgotPassword.tsx';
 import UpdatePassword from './view/Auth/UpdatePassword.tsx';
+import Contact from './view/Contact.tsx';
 
 function App() {
 
@@ -33,6 +34,7 @@ function App() {
                     <Route path={"admin/seances"} element={<SeanceManagement />} />
                     <Route path={"admin/users" } element={<UserManagement />} />
                     <Route path={"admin/bookings"} element={<BookingManager />} />
+                    <Route path={"admin/contact"} element={<Contact/>} />
                 </Route>
 
                 <Route path="*" element={<Login />} />

@@ -60,7 +60,7 @@ const SalleManagement: React.FC = () => {
             <SalleList salles={salles} onEdit={handleEdit} onDelete={handleDelete} />
             <Modal open={open} onClose={handleClose}>
                 <Box sx={modalStyle}>
-                    <SalleForm existingSalle={selectedSalle || undefined} onSave={handleSave} />
+                    <SalleForm existingSalle={selectedSalle || undefined} onSave={handleSave} onClose={handleClose}/>
                 </Box>
             </Modal>
         </Container>

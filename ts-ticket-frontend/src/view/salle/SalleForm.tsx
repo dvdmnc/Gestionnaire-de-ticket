@@ -7,15 +7,18 @@ import {
     Paper,
     Box,
     Typography,
+    IconButton,
 } from '@mui/material';
 import { Salle } from '../../CRUD/Types';
+import CloseIcon from '@mui/icons-material/Close';
 
 interface Props {
     existingSalle?: Salle;
     onSave: (salle: Salle) => void;
+    onClose?: () => void;
 }
 
-const SalleForm: React.FC<Props> = ({ existingSalle, onSave }) => {
+const SalleForm: React.FC<Props> = ({ existingSalle, onSave, onClose }) => {
     const [salle, setSalle] = useState<Salle>({
         nom: '',
         dispo: false,
@@ -43,9 +46,18 @@ const SalleForm: React.FC<Props> = ({ existingSalle, onSave }) => {
 
     return (
         <Paper elevation={3} sx={{ p: 3 }}>
-            <Typography variant="h6" gutterBottom>
-                {existingSalle ? 'Edit Salle' : 'Create New Salle'}
-            </Typography>
+            <Box sx={{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+                <Typography variant="h6" gutterBottom>
+                    {existingSalle ? 'Edit Salle' : 'Create New Salle'}
+                </Typography>
+                {onClose && (
+                        <IconButton
+                        onClick={onClose}
+                        >
+                            <CloseIcon />
+                        </IconButton>
+                    )}
+            </Box>
             <Box
                 component="form"
                 onSubmit={handleSubmit}

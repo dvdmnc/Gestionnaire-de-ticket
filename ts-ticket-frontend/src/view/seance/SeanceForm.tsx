@@ -7,7 +7,8 @@ import {
     MenuItem,
     Select,
     FormControl,
-    InputLabel, TextField
+    InputLabel, TextField,
+    IconButton
 } from '@mui/material';
 import { Seance, Film, Salle } from '../../CRUD/Types';
 import { getFilms } from '../../CRUD/FilmController';
@@ -16,13 +17,15 @@ import { DateTimePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDateFns} from "@mui/x-date-pickers/AdapterDateFnsV3";
 import {Dayjs} from "dayjs";
 import dayjs from "dayjs";
+import CloseIcon from '@mui/icons-material/Close';
 
 interface Props {
     existingSeance?: Seance;
     onSave: (seance: Seance) => void;
+    onClose?: () => void;
 }
 
-const SeanceForm: React.FC<Props> = ({ existingSeance, onSave }) => {
+const SeanceForm: React.FC<Props> = ({ existingSeance, onSave, onClose }) => {
     const [seance, setSeance] = useState<Seance>({
         film_id: 0,
         salle_id: 0,
@@ -69,9 +72,18 @@ const SeanceForm: React.FC<Props> = ({ existingSeance, onSave }) => {
 
     return (
         <Paper elevation={3} sx={{ p: 3 }}>
-            <Typography variant="h6" gutterBottom>
-                {existingSeance ? 'Edit Seance' : 'Create New Seance'}
-            </Typography>
+             <Box sx={{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+                <Typography variant="h6" gutterBottom>
+                    {existingSeance ? 'Edit Seance' : 'Create New Seance'}
+                </Typography>
+                {onClose && (
+                        <IconButton
+                        onClick={onClose}
+                        >
+                            <CloseIcon />
+                        </IconButton>
+                    )}
+            </Box>
             <Box
                 component="form"
                 onSubmit={handleSubmit}

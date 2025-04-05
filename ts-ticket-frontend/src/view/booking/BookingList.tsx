@@ -10,7 +10,7 @@ import {
     Button,
     TablePagination,
 } from '@mui/material';
-import { Booking } from '../../CRUD/Types';
+import { Booking } from '../../CRUD/Types.ts';
 import DeleteButton from "../DeleteButton.tsx";
 
 interface Props {

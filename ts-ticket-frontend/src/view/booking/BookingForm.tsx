@@ -8,17 +8,20 @@ import {
     Select,
     MenuItem,
     FormControl,
-    InputLabel
+    InputLabel,
+    IconButton
 } from '@mui/material';
-import { Booking, Ticket, Seance } from '../../CRUD/Types';
+import { Booking, Ticket, Seance } from '../../CRUD/Types.ts';
 import { getSeances } from "../../CRUD/SeanceController.ts";
+import CloseIcon from '@mui/icons-material/Close';
 
 interface Props {
     existingBooking?: Booking;
     onSave: (booking: Booking, tickets: Ticket[]) => void;
+    onClose?: () => void;
 }
 
-const BookingForm: React.FC<Props> = ({ existingBooking, onSave }) => {
+const BookingForm: React.FC<Props> = ({ existingBooking, onSave, onClose }) => {
     const [booking, setBooking] = useState<Booking>({
         user_id: '',
         seance_id: 0,
@@ -53,7 +56,7 @@ const BookingForm: React.FC<Props> = ({ existingBooking, onSave }) => {
     };
 
     const addTicket = () => {
-        setTickets([...tickets, { reservation_id: booking.id, type: '', num_siege: '', price: 0 }]);
+        setTickets([...tickets, { reservation_id: booking.id, type: '', num_siege: '', price: 0 } as Ticket]);
     };
 
     const removeTicket = (index: number) => {
@@ -67,9 +70,18 @@ const BookingForm: React.FC<Props> = ({ existingBooking, onSave }) => {
 
     return (
         <Paper elevation={3} sx={{ p: 3 }}>
-    <Typography variant="h6" gutterBottom>
-    {existingBooking ? 'Edit Booking' : 'Create New Booking'}
-    </Typography>
+    <Box sx={{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+                <Typography variant="h6" gutterBottom>
+                {existingBooking ? 'Edit Booking' : 'Create New Booking'}
+                </Typography>
+                {onClose && (
+                        <IconButton
+                        onClick={onClose}
+                        >
+                            <CloseIcon />
+                        </IconButton>
+                    )}
+            </Box>
     <Box component="form" onSubmit={handleSubmit} sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
     <FormControl fullWidth>
     <InputLabel>Screening</InputLabel>

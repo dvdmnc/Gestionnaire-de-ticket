@@ -60,7 +60,7 @@ const SeanceManagement: React.FC = () => {
             <SeanceList seances={seances} onEdit={handleEdit} onDelete={handleDelete} />
             <Modal open={open} onClose={handleClose}>
                 <Box sx={{ p: 4 }}>
-                    <SeanceForm existingSeance={selectedSeance || undefined} onSave={handleSave} />
+                    <SeanceForm existingSeance={selectedSeance || undefined} onSave={handleSave} onClose={handleClose}/>
                 </Box>
             </Modal>
         </Container>
