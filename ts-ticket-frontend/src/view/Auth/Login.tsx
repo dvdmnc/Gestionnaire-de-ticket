@@ -17,7 +17,7 @@ const Login: React.FC = () => {
         e.preventDefault();
         try {
             const data =  await loginUser(email, password);
-            data.isAdmin ? navigate('/admin/films') : navigate('client/home')
+            data.isAdmin ? navigate('/admin/films') : navigate('/client/home')
              // Redirection après connexion réussie vers panneau d'Administration ou côté client
         } catch (error) {
             console.error('Login failed', error);

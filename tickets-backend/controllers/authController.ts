@@ -71,7 +71,7 @@ class AuthController {
 
       const { data: userData, error: userError } = await supabase //Because isAdmin is not returned by the signInWithPassword method so we have to look up the user this way
         .from("users")
-        .select("isAdmin")
+        .select("*")
         .eq("id", data.user.id)
         .single();
 
@@ -79,7 +79,7 @@ class AuthController {
           res.status(500).json({ error: "Internal Server Error" });
         }
 
-      return res.json({ message: 'Login successful!', token: data.session?.access_token, isAdmin:userData?.isAdmin });
+      return res.json({ message: 'Login successful!', token: data.session?.access_token, user:userData });
     } catch (err) {
       return res.status(500).json({ error: 'Internal Server Error' });
     }

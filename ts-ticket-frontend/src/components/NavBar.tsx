@@ -19,25 +19,31 @@ import { Link } from 'react-router-dom';
 const Navbar: React.FC = () => {
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const [isAuthenticated, setIsAuthenticated] = useState(!!localStorage.getItem('token'));
-    const[isAdmin,setIsAdmin] = useState(localStorage.getItem('isAdmin'))
+    const[isAdmin,setIsAdmin] = useState(localStorage.getItem('isAdmin') === 'true')
+
 
     const pages = isAdmin ? [
+        { name: 'Home', path: 'client/home' },
         { name: 'Rooms', path: 'admin/salles' },
         { name: 'Movies', path: 'admin/films' },
         { name: 'Screenings', path: 'admin/seances' },
         { name: 'Bookings', path: 'admin/bookings' },
         { name: 'Users', path: 'admin/users'},
         { name: 'Contact', path: 'admin/contact' },
+    ] : (isAuthenticated ? [
+        { name: 'Home', path: 'client/home' },
+        { name: 'Profile', path: 'client/profile' },
     ] : [
-        { name: 'Test', path: 'client/salles' },
-    ]
+        { name: 'Home', path: 'client/home' },
+        { name: 'Register', path: 'client/register' }
+    ])
 
     useEffect(() => {
         setIsAuthenticated(!!localStorage.getItem('token'));
         
         const handleStorageChange = () => {
             setIsAuthenticated(!!localStorage.getItem('token'));
-            setIsAdmin(localStorage.getItem('isAdmin'));
+            setIsAdmin(localStorage.getItem('isAdmin') === 'true');
         };
 
         window.addEventListener('storage', handleStorageChange);
@@ -45,7 +51,7 @@ const Navbar: React.FC = () => {
         // Setup a token check interval
         const tokenCheckInterval = setInterval(() => {
             setIsAuthenticated(!!localStorage.getItem('token'));
-            setIsAdmin(localStorage.getItem('isAdmin'));
+            setIsAdmin(localStorage.getItem('isAdmin') === 'true');
         }, 1000); // Check every second
 
         return () => {
@@ -57,6 +63,7 @@ const Navbar: React.FC = () => {
     const handleLogout = () => {
         localStorage.removeItem('token');
         localStorage.removeItem('isAdmin')
+        localStorage.removeItem('user_id');
         setIsAuthenticated(false);
         setIsAdmin(null);
         window.location.href = '/login'; 
@@ -129,7 +136,7 @@ const Navbar: React.FC = () => {
                                     } 
                                 }}
                             >
-                                {isAuthenticated &&  pages.map((page) => (
+                                {pages.map((page) => (
                                     <MenuItem key={page.name} onClick={handleCloseNavMenu}>
                                         <Typography 
                                             textAlign="center"
@@ -192,7 +199,7 @@ const Navbar: React.FC = () => {
                         </Typography>
 
                         <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' }, justifyContent: 'center' }}>
-                            {isAuthenticated && pages.map((page) => (
+                            {pages.map((page) => (
                                 <Button 
                                     key={page.name} 
                                     sx={{ 

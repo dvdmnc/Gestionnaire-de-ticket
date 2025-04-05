@@ -30,7 +30,6 @@ const SeanceForm: React.FC<Props> = ({ existingSeance, onSave, onClose }) => {
         film_id: 0,
         salle_id: 0,
         heure: '',
-        prix_base: 0,
     } as Seance);
 
     const [films, setFilms] = useState<Film[]>([]);
@@ -129,17 +128,6 @@ const SeanceForm: React.FC<Props> = ({ existingSeance, onSave, onClose }) => {
                         ))}
                     </Select>
                 </FormControl>
-
-
-                {/*Prix*/}
-                <TextField
-                    label="Prix"
-                    type="number"
-                    name="prix_base"
-                    value={seance.prix_base}
-                    onChange={handleChange}
-                    required
-                />
 
                 <Button type="submit" variant="contained" color="primary">
                     Save

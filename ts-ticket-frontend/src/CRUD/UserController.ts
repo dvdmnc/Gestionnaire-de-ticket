@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { User } from './Types.ts';
+import { User, UserWithBookings } from './Types.ts';
 
 const API_URL = 'http://localhost:5000/users';
 // Helper function to get the token
@@ -11,6 +11,12 @@ const getAuthHeaders = () => {
 // Fetch all users
 export const getUsers = async () => {
     const response = await axios.get<User[]>(API_URL, { headers: getAuthHeaders() });
+    return response.data;
+};
+
+//Fetch one user
+export const getUserById = async () => {
+    const response = await axios.get<UserWithBookings[]>(API_URL, { headers: getAuthHeaders() });
     return response.data;
 };
 

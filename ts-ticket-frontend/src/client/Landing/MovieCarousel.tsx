@@ -14,8 +14,8 @@ import {
   useTheme,
   CircularProgress
 } from '@mui/material';
-import { getFilms } from '../CRUD/FilmController.ts';
-import { Film } from '../CRUD/Types.ts';
+import { getFilms } from '../../CRUD/FilmController.ts';
+import { Film } from '../../CRUD/Types.ts';
 
 // Add font imports to your index.html or via Material UI theme
 // <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">

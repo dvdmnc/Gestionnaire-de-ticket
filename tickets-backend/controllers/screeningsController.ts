@@ -54,32 +54,28 @@ export const createScreening = async (
   res: Response<Seance | { error: string }>
 ): Promise<void> => {
   try {
-    // Check if user is logged in
     if (!req.auth?.user) {
       res.status(401).json({ error: "Unauthorized: User not logged in" });
       return;
     }
 
-    // Check if user is admin
     const { data: userData, error: userError } = await supabase
       .from("users")
       .select("isAdmin")
       .eq("id", req.auth.user.id)
       .single();
 
-    // Strict comparison of isAdmin to true
     if (userError || userData?.isAdmin !== true) {
       res.status(403).json({ error: "Forbidden: User is not an admin" });
       return;
     }
 
-    const { film_id, salle_id, heure, prix_base } = req.body;
+    const { film_id, salle_id, heure } = req.body;
 
     if (
       film_id == null ||
       salle_id == null ||
-      !heure ||
-      prix_base == null
+      !heure 
     ) {
       res.status(400).json({ error: 'Missing fields' });
       return;
@@ -87,7 +83,7 @@ export const createScreening = async (
 
     const { data, error } = await supabase
       .from('seances')
-      .insert([{ film_id, salle_id, heure, prix_base }])
+      .insert([{ film_id, salle_id, heure }])
       .select()
       .single();
 
@@ -107,27 +103,24 @@ export const updateScreening = async (
   res: Response<Seance| { error: string }>
 ): Promise<void> => {
   try {
-    // Check if user is logged in
     if (!req.auth?.user) {
       res.status(401).json({ error: "Unauthorized: User not logged in" });
       return;
     }
 
-    // Check if user is admin
     const { data: userData, error: userError } = await supabase
       .from("users")
       .select("isAdmin")
       .eq("id", req.auth.user.id)
       .single();
 
-    // Strict comparison of isAdmin to true
     if (userError || userData?.isAdmin !== true) {
       res.status(403).json({ error: "Forbidden: User is not an admin" });
       return;
     }
 
     const { id } = req.params;
-    const { film_id, salle_id, heure, prix_base } = req.body;
+    const { film_id, salle_id, heure } = req.body;
 
     // Check if there are any tickets sold for this screening
     const { data: reservations, error: reservationsError } = await supabase
@@ -144,7 +137,7 @@ export const updateScreening = async (
       // If tickets are sold, only allow updates to certain fields, not salle_id or time
       const { data, error } = await supabase
         .from('seances')
-        .update({ film_id, prix_base })
+        .update({ film_id })
         .eq('id', id)
         .select()
         .single();
@@ -164,7 +157,7 @@ export const updateScreening = async (
     // If no tickets are sold, allow full update
     const { data, error } = await supabase
       .from('seances')
-      .update({ film_id, salle_id, heure, prix_base })
+      .update({ film_id, salle_id, heure })
       .eq('id', id)
       .select()
       .single();

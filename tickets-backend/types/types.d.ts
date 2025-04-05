@@ -75,4 +75,39 @@ export interface User {
 }
 
 
+export interface UserWithBookings {
+  id: string;
+  nom: string;
+  email: string;
+  isAdmin?: boolean;
+  reservations: Array<{
+    id: number;
+    seance_id: number;
+    date_reservation: string;
+    tickets: Array<{
+      id: number;
+      reservation_id: number;
+      type: string;
+      num_siege: string;
+      price: number;
+      created_at?: string;
+    }>;
+    seance: {
+      id: number;
+      heure: string;
+      film: {
+        id: number;
+        nom: string;
+        poster: string;
+      } | null;
+      salle: {
+        id: number;
+        nom: string;
+      } | null;
+    } | null;
+  }>;
+}
+
+
+
 

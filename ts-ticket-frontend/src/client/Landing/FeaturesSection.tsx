@@ -93,7 +93,7 @@ const FeaturesSection: React.FC = () => {
               lineHeight: 1.7
             }}
           >
-            Discover the tools that make CineManage the perfect platform for your cinema experience.
+            Discover the tools that make CineGold the perfect platform for your cinema experience.
             Each feature is designed with your convenience in mind.
           </Typography>
         </Box>

@@ -76,7 +76,7 @@ const HeroSection: React.FC = () => {
                 color: '#ffffff'
               }}
             >
-              Welcome to <Box component="span" sx={{ color: '#00e5ff', display: 'inline-block' }}>CineManage</Box>
+              Welcome to <Box component="span" sx={{ color: '#00e5ff', display: 'inline-block' }}>CineGold</Box>
             </Typography>
             
             <Typography 

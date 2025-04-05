@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import {supabase, supabaseAdmin} from '../db/db'; 
-import { User } from '../types/types'; 
+import { User, UserWithBookings } from '../types/types'; 
 
 
 export const getUsers = async (
@@ -28,13 +28,36 @@ export const getUsers = async (
 
 export const getUserById = async (
   req: Request,
-  res: Response<User | { error: string }>
+  res: Response<UserWithBookings | { error: string }>
 ): Promise<void> => {
   const { id } = req.params;
   try {
     const { data, error } = await supabase
       .from('users')
-      .select('*')
+      .select(`
+        id,
+        nom,
+        email,
+        reservations:reservations(
+          id,
+          seance_id,
+          date_reservation,
+          tickets(*),
+          seance:seances!seance_id(
+            id,
+            heure,
+            film:films!film_id(
+              id,
+              nom,
+              poster
+            ),
+            salle:salles!salle_id(
+              id,
+              nom
+            )
+          )
+        )
+      `)
       .eq('id', id)
       .single();
 
@@ -46,7 +69,28 @@ export const getUserById = async (
       res.status(404).json({ error: 'User not found' });
       return;
     }
-    res.json(data as User);
+
+    const userWithBookings: UserWithBookings = {
+      id: data.id,
+      nom: data.nom,
+      email: data.email,
+      reservations: (data.reservations || []).map((r: any) => ({
+        id: r.id,
+        seance_id: r.seance_id,
+        date_reservation: r.date_reservation,
+        tickets: r.tickets || [],
+        seance: r.seance
+          ? {
+              id: r.seance.id,
+              heure: r.seance.heure,
+              film: r.seance.film || null,
+              salle: r.seance.salle || null,
+            }
+          : null,
+      })),
+    };
+
+    res.json(userWithBookings);
   } catch (err) {
     res.status(500).json({ error: 'Server error fetching user' });
   }
