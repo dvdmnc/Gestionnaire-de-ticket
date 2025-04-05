@@ -6,7 +6,9 @@ export interface AuthenticatedRequest  {
         user: User;
     };
 }
+export type types = 'normal' | 'reduit' | 'enfant' ;
 
+export type filmGenre = 'Action' | 'Comedy' | 'Drama' | 'Horror' | 'Sci-Fi' | 'Documentary' | 'Animation';
 export interface Film {
     id?: number;
     nom: string;
@@ -15,7 +17,7 @@ export interface Film {
     description?: string;
     duree?: number;
     realisateur?: string;
-    genre?: string;
+    genre?: filmGenre;
 }
 
 export interface Salle {
@@ -48,11 +50,10 @@ export interface Booking {
     date_reservation: string;
 }
 
-
 export interface Ticket {
     id: number;
     reservation_id: number;
-    type: string;
+    type: types;
     num_siege: string;
     price: number;
     created_at?: string;
@@ -67,6 +68,9 @@ export interface User {
     created_at?: string;
     updated_at?: string;
     isAdmin?: boolean;
+}
+export interface BookingWithTickets extends Booking{
+    tickets: Ticket[]
 }
 
 
