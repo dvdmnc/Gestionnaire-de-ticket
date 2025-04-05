@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import BookingList from './BookingList';
 import BookingForm from './BookingForm';
-import { Booking, Ticket } from '../../CRUD/Types';
+import { Booking, BookingWithTickets } from '../../CRUD/Types';
 import { Container, Button, Modal, Box, Typography, Paper } from '@mui/material';
 import { getBookings, createBooking, updateBooking, deleteBooking } from '../../CRUD/BookingController';
 import { useNotifications } from '@toolpad/core';
@@ -9,10 +9,10 @@ import AddIcon from '@mui/icons-material/Add';
 import BookOnlineIcon from '@mui/icons-material/BookOnline';
 
 const BookingManager: React.FC = () => {
-    const [bookings, setBookings] = useState<Booking[]>([]);
-    const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
-    const [tickets, setTickets] = useState<Ticket[]>([]);
+    const [bookings, setBookings] = useState<BookingWithTickets[]>([]);
+    const [selectedBooking, setSelectedBooking] = useState<BookingWithTickets | null>(null);
     const [open, setOpen] = useState(false);
+    const [loading, setLoading] = useState(false);
     const notifications = useNotifications();
 
     useEffect(() => {
@@ -20,19 +20,32 @@ const BookingManager: React.FC = () => {
     }, []);
 
     const fetchBookings = async () => {
-        const fetchedBookings = await getBookings();
-        setBookings(fetchedBookings);
+        setLoading(true);
+        try {
+            const fetchedBookings = await getBookings();
+            setBookings(fetchedBookings);
+        } catch (error) {
+            notifications.show('Failed to fetch bookings', { severity: 'error', autoHideDuration: 3000 });
+            console.error("Error fetching bookings:", error);
+        } finally {
+            setLoading(false);
+        }
     };
 
-    const handleEdit = (booking: Booking) => {
+    const handleEdit = (booking: BookingWithTickets) => {
         setSelectedBooking(booking);
         setOpen(true);
     };
 
     const handleDelete = async (id: number) => {
-        await deleteBooking(id);
-        notifications.show('Booking deleted successfully', { severity: 'success', autoHideDuration: 2000 });
-        fetchBookings();
+        try {
+            await deleteBooking(id);
+            notifications.show('Booking deleted successfully', { severity: 'success', autoHideDuration: 2000 });
+            fetchBookings();
+        } catch (error) {
+            notifications.show('Failed to delete booking', { severity: 'error', autoHideDuration: 3000 });
+            console.error("Error deleting booking:", error);
+        }
     };
 
     const handleClose = () => {
@@ -40,16 +53,23 @@ const BookingManager: React.FC = () => {
         setOpen(false);
     };
 
-    const handleSave = async (booking: Booking, tickets: Ticket[]) => {
-        if (booking.id) {
-            await updateBooking(booking, tickets);
-            notifications.show('Booking updated successfully', { severity: 'success', autoHideDuration: 2000 });
-        } else {
-            await createBooking(booking, tickets);
-            notifications.show('Booking created successfully', { severity: 'success', autoHideDuration: 2000 });
+    const handleSave = async (bookingWithTickets: BookingWithTickets) => {
+        try {
+            if (bookingWithTickets.id) {
+                // Update existing booking
+                await updateBooking(bookingWithTickets);
+                notifications.show('Booking updated successfully', { severity: 'success', autoHideDuration: 2000 });
+            } else {
+                // Create new booking
+                await createBooking(bookingWithTickets);
+                notifications.show('Booking created successfully', { severity: 'success', autoHideDuration: 2000 });
+            }
+            fetchBookings();
+            handleClose();
+        } catch (error) {
+            notifications.show('Failed to save booking', { severity: 'error', autoHideDuration: 3000 });
+            console.error("Error saving booking:", error);
         }
-        fetchBookings();
-        handleClose();
     };
 
     return (
