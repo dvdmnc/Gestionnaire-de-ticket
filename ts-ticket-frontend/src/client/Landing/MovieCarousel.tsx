@@ -16,6 +16,7 @@ import {
 } from '@mui/material';
 import { getFilms } from '../../CRUD/FilmController.ts';
 import { Film } from '../../CRUD/Types.ts';
+import {useNavigate} from "react-router-dom";
 
 // Add font imports to your index.html or via Material UI theme
 // <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -27,8 +28,14 @@ const MovieCarousel: React.FC = () => {
   const [films, setFilms] = useState<Film[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  
-  useEffect(() => {
+    const navigate = useNavigate();
+    const handleBookFilm = (film: Film) => {
+        // Store selected film in sessionStorage
+        sessionStorage.setItem('selectedFilm', JSON.stringify(film));
+        // Navigate to reservations page
+        navigate('/client/reservation');
+    }
+    useEffect(() => {
     const fetchFilms = async () => {
       try {
         setLoading(true);
@@ -261,6 +268,7 @@ const MovieCarousel: React.FC = () => {
                             backgroundColor: '#1565c0',
                           }
                         }}
+                        onClick={() => handleBookFilm(film)}
                       >
                         Book Tickets
                       </Button>

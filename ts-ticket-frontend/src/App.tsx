@@ -17,6 +17,7 @@ import Contact from './view/Contact.tsx';
 import LandingPage from './client/Landing/LandingPage.tsx';
 import AdminRoute from './view/Auth/AdminRoute.tsx';
 import UserProfile from './client/UserProfile.tsx';
+import ReservationPage from "./client/ReservationPage.tsx";
 
 function App() {
 
@@ -37,6 +38,7 @@ function App() {
                 </Route>
 
               <Route path={"client/home"} element={<LandingPage />} />
+            <Route path={"client/reservation"} element={<ReservationPage />} />
               <Route path="client/register" element={<Register />} />
               <Route element={<AuthRoute />}>
                 <Route path={"client/profile"} element={<UserProfile />} />
