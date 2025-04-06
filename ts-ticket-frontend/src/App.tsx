@@ -15,6 +15,7 @@ import ForgotPassword from './view/Auth/ForgotPassword.tsx';
 import UpdatePassword from './view/Auth/UpdatePassword.tsx';
 import Contact from './view/Contact.tsx';
 import LandingPage from './client/LandingPage.tsx';
+import MovieDetails from './client/MovieDetails';
 
 function App() {
 
@@ -40,6 +41,7 @@ function App() {
             </Route>
             <Route>
               <Route path={"client/home"} element={<LandingPage />} />
+              <Route path="/movie/:id" element={<MovieDetails />} />
             </Route>
 
 

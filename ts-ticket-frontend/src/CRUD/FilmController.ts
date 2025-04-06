@@ -12,10 +12,15 @@ const getAuthHeaders = () => {
 
 // Fetch all films - public access, doesn't require authentication
 export const getFilms = async () => {
-    const response = await axios.get<Film[]>(API_URL);
+    const response = await axios.get(API_URL);
+    console.log("RAW response from backend:", response.data);
     return response.data;
 };
 
+export const getFilmById = async (id: number) => {
+    const response = await axios.get<{ film: Film }>(`${API_URL}/${id}`);
+    return response.data.film;
+  };
 // Create a new film - requires authentication
 export const createFilm = async (film: Omit<Film, 'id'>) => {
     const headers = getAuthHeaders();

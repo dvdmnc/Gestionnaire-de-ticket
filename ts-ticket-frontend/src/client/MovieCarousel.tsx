@@ -16,12 +16,11 @@ import {
 } from '@mui/material';
 import { getFilms } from '../CRUD/FilmController.ts';
 import { Film } from '../CRUD/Types.ts';
-
-// Add font imports to your index.html or via Material UI theme
-// <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+import { useNavigate } from 'react-router-dom';
 
 const MovieCarousel: React.FC = () => {
   const theme = useTheme();
+  const navigate = useNavigate();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const [currentIndex, setCurrentIndex] = useState(0);
   const [films, setFilms] = useState<Film[]>([]);
@@ -70,6 +69,10 @@ const MovieCarousel: React.FC = () => {
     setCurrentIndex((prevIndex) => 
       prevIndex - 1 < 0 ? films.length - 1 : prevIndex - 1
     );
+  };
+
+  const handleViewDetails = (filmId: number) => {
+    navigate(`/movie/${filmId}`);
   };
 
   return (
@@ -242,7 +245,7 @@ const MovieCarousel: React.FC = () => {
                             gap: 0.5
                           }}
                         >
-                          <span>⏱</span> {film.duree}
+                          <span>⏱</span> {film.duree} min
                         </Typography>
                       )}
                     </CardContent>
@@ -261,8 +264,9 @@ const MovieCarousel: React.FC = () => {
                             backgroundColor: '#1565c0',
                           }
                         }}
+                        onClick={() => film.id && handleViewDetails(film.id)}
                       >
-                        Book Tickets
+                        View Details
                       </Button>
                     </CardActions>
                   </Card>
@@ -317,6 +321,7 @@ const MovieCarousel: React.FC = () => {
                     backgroundColor: 'rgba(255, 255, 255, 0.1)'
                   }
                 }}
+                onClick={() => navigate('/movies')}
               >
                 View All Movies
               </Button>

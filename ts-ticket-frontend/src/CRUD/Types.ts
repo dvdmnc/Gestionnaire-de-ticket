@@ -39,7 +39,7 @@ export interface Seance {
     film_id: number;
     salle_id: number;
     heure: string;
-    prix_base?: number;
+    seatleft?: number; 
 }
 
 

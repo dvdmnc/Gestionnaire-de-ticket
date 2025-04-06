@@ -10,7 +10,7 @@ const getAuthHeaders = () => {
 };
 // Fetch all seances
 export const getSeances = async () => {
-    const response = await axios.get<Seance[]>(API_URL, { headers: getAuthHeaders() });
+    const response = await axios.get<Seance[]>(API_URL);
 
 
     return response.data;
