@@ -15,14 +15,12 @@ class AuthController {
   static async register(req: Request, res: Response) {
     const { email, password, nom } = req.body;
 
-    console.log("📩 Incoming Request:", { email, password, nom });
 
     try {
 
         const { data, error } = await supabase.auth.signUp({ email, password });
 
         if (error) {
-            console.error("❌ Supabase Auth Error:", error.message);
             return res.status(400).json({ error: error.message });
         }
 
@@ -44,7 +42,6 @@ class AuthController {
             .select();
 
         if (dbError) {
-            console.error("❌ Supabase DB Error:", dbError.message);
             
 
             await supabase.auth.admin.deleteUser(userId);
@@ -52,14 +49,12 @@ class AuthController {
             return res.status(400).json({ error: "Failed to save user in database" });
         }
 
-        console.log("✅ User Registered & Saved in DB:", userId);
         return res.json({ 
             message: "User registered successfully!", 
             user: { id: userId, email, nom }
         });
     
     } catch (err) {
-        console.error("❌ Fetch Failed Error:", err);
         return res.status(500).json({ error: "Internal Server Error" });
     }
 }
@@ -74,7 +69,17 @@ class AuthController {
 
       if (error) return res.status(401).json({ error: error.message });
 
-      return res.json({ message: 'Login successful!', token: data.session?.access_token });
+      const { data: userData, error: userError } = await supabase //Because isAdmin is not returned by the signInWithPassword method so we have to look up the user this way
+        .from("users")
+        .select("*")
+        .eq("id", data.user.id)
+        .single();
+
+        if (userError){
+          res.status(500).json({ error: "Internal Server Error" });
+        }
+
+      return res.json({ message: 'Login successful!', token: data.session?.access_token, user:userData });
     } catch (err) {
       return res.status(500).json({ error: 'Internal Server Error' });
     }
@@ -122,7 +127,6 @@ class AuthController {
   
       return res.json({ message: 'Password reset link sent. Check your email.' });
     } catch (err) {
-      console.error('resetPassword error:', err);
       return res.status(500).json({ error: 'Failed to send reset link' });
     }
   };

@@ -23,12 +23,10 @@ function App() {
     <Box sx={{ width:'100%' }}>
         <Navbar />
         <Routes>
-            <Route>
-                <Route path="/register" element={<Register />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/reset-password" element={<ForgotPassword />} />
                 <Route path="/update-password" element={<UpdatePassword />} />
-                <Route element={<AuthRoute />}>
+                <Route element={<AdminRoute />}>
                     <Route path={"admin/salles"} element={<SalleManagement />} />
                     <Route path={"admin/films"} element={<FilmManagement />} />
                     <Route path={"admin/seances"} element={<SeanceManagement />} />
@@ -37,11 +35,12 @@ function App() {
                     <Route path={"admin/contact"} element={<Contact/>} />
                 </Route>
 
-                <Route path="*" element={<Login />} />
-            </Route>
-            <Route>
               <Route path={"client/home"} element={<LandingPage />} />
               <Route path="/movie/:id" element={<MovieDetails />} />
+            <Route path={"client/reservation"} element={<ReservationPage />} />
+              <Route path="client/register" element={<Register />} />
+              <Route element={<AuthRoute />}>
+                <Route path={"client/profile"} element={<UserProfile />} />
             </Route>
 
 

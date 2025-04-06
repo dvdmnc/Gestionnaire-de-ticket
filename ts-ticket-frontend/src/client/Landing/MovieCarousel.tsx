@@ -14,9 +14,12 @@ import {
   useTheme,
   CircularProgress
 } from '@mui/material';
-import { getFilms } from '../CRUD/FilmController.ts';
-import { Film } from '../CRUD/Types.ts';
-import { useNavigate } from 'react-router-dom';
+import { getFilms, getFilmById } from '../../CRUD/FilmController.ts';
+import { Film } from '../../CRUD/Types.ts';
+import { useNavigate } from "react-router-dom";
+
+// Add font imports to your index.html or via Material UI theme
+// <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
 const MovieCarousel: React.FC = () => {
   const theme = useTheme();
@@ -27,12 +30,30 @@ const MovieCarousel: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   
+  const handleBookFilm = (film: Film) => {
+    // Store selected film in sessionStorage
+    sessionStorage.setItem('selectedFilm', JSON.stringify(film));
+    // Navigate to reservations page
+    navigate('/client/reservation');
+  }
+
   useEffect(() => {
     const fetchFilms = async () => {
       try {
         setLoading(true);
         const data = await getFilms();
-        setFilms(data);
+        
+        // Load complete film details for each film
+        const detailedFilms = await Promise.all(
+          data.map(async (film) => {
+            if (film.id) {
+              return await getFilmById(film.id);
+            }
+            return film;
+          })
+        );
+        
+        setFilms(detailedFilms);
         setError(null);
       } catch (err) {
         console.error('Failed to fetch films:', err);
@@ -71,8 +92,23 @@ const MovieCarousel: React.FC = () => {
     );
   };
 
+  // Navigate to movie details page
   const handleViewDetails = (filmId: number) => {
     navigate(`/movie/${filmId}`);
+  };
+
+  // Format duration from minutes to hours and minutes
+  const formatDuration = (minutes: number) => {
+    const hours = Math.floor(minutes / 60);
+    const remainingMinutes = minutes % 60;
+    
+    if (hours > 0 && remainingMinutes > 0) {
+      return `${hours}h ${remainingMinutes}m`;
+    } else if (hours > 0) {
+      return `${hours}h`;
+    } else {
+      return `${remainingMinutes}m`;
+    }
   };
 
   return (
@@ -183,7 +219,15 @@ const MovieCarousel: React.FC = () => {
                       }
                     }}
                   >
-                    <Box sx={{ position: 'relative', overflow: 'hidden', pt: '140%' }}>
+                    <Box 
+                      sx={{ 
+                        position: 'relative', 
+                        overflow: 'hidden', 
+                        pt: '140%',
+                        cursor: 'pointer' 
+                      }}
+                      onClick={() => film.id && handleViewDetails(film.id)}
+                    >
                       <CardMedia 
                         component="img" 
                         image={film.poster || 'https://www.semantus.fr/clap/static/images/poster-placeholder.png'} 
@@ -228,8 +272,10 @@ const MovieCarousel: React.FC = () => {
                           fontWeight: 600,
                           mb: 1,
                           color: '#212529',
-                          fontFamily: 'Poppins, sans-serif'
+                          fontFamily: 'Poppins, sans-serif',
+                          cursor: 'pointer'
                         }}
+                        onClick={() => film.id && handleViewDetails(film.id)}
                       >
                         {film.nom}
                       </Typography>
@@ -245,7 +291,7 @@ const MovieCarousel: React.FC = () => {
                             gap: 0.5
                           }}
                         >
-                          <span>⏱</span> {film.duree} min
+                          <span>⏱</span> {formatDuration(film.duree)}
                         </Typography>
                       )}
                     </CardContent>
@@ -264,9 +310,9 @@ const MovieCarousel: React.FC = () => {
                             backgroundColor: '#1565c0',
                           }
                         }}
-                        onClick={() => film.id && handleViewDetails(film.id)}
+                        onClick={() => handleBookFilm(film)}
                       >
-                        View Details
+                        Book Now
                       </Button>
                     </CardActions>
                   </Card>
@@ -306,24 +352,6 @@ const MovieCarousel: React.FC = () => {
                 }}
               >
                 Next
-              </Button>
-            </Box>
-            
-            <Box sx={{ textAlign: 'center', mt: 5 }}>
-              <Button 
-                variant="text"
-                sx={{ 
-                  color: '#ffffff',
-                  fontFamily: 'Montserrat, sans-serif',
-                  textTransform: 'none',
-                  fontWeight: 500,
-                  '&:hover': {
-                    backgroundColor: 'rgba(255, 255, 255, 0.1)'
-                  }
-                }}
-                onClick={() => navigate('/movies')}
-              >
-                View All Movies
               </Button>
             </Box>
           </>

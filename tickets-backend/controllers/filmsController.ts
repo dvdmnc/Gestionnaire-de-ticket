@@ -18,7 +18,6 @@ export const getFilms = async (
 
     return res.json(data || []);
   } catch (err) {
-    console.error(err);
     return res.status(500).json({ error: 'Server error fetching films' });
   }
 };
@@ -99,7 +98,6 @@ export const getFilmById = async (
           film_id:rawSeance.film_id,
           salle_id:rawSeance.salle_id,
           heure: rawSeance.heure,
-          prix_base:undefined,
           salle: {
             id: salleObj.id,
             nom: salleObj.nom,
@@ -115,7 +113,6 @@ export const getFilmById = async (
 
     res.json({ film: typedFilm });
   } catch (err) {
-    console.error(err);
     res.status(500).json({ error: 'Server error fetching film' });
   }
 };
@@ -131,7 +128,6 @@ export const createFilm = async (
     { error: string; missingFields?: string[] }
   >
 ): Promise<any> => {
-  console.log("Auth info:", req.auth);
   try {
 
     if (!req.auth?.user) {
@@ -202,7 +198,6 @@ export const updateFilm = async (
   req: AuthenticatedRequest,
   res: Response<Film[] | { error: string }>
 ): Promise<any> => {
-  console.log("Auth info:", req.auth);
   try {
 
     if (!req.auth?.user) {
@@ -252,10 +247,13 @@ export const updateFilm = async (
     return res.status(400).json({ error: 'Failed to update film' });
   }
 };
+
 interface ConflictSeance {
   id: number;
   heure: string;
-}export const deleteFilm = async (
+}
+
+export const deleteFilm = async (
   req: AuthenticatedRequest,
   res: Response<
     { message: string } |

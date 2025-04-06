@@ -50,6 +50,10 @@ export interface Booking {
     date_reservation: string;
 }
 
+export interface BookingWithTickets extends Booking{
+    tickets: Ticket[]
+}
+
 export interface Ticket {
     id: number;
     reservation_id: number;
@@ -69,9 +73,40 @@ export interface User {
     updated_at?: string;
     isAdmin?: boolean;
 }
-export interface BookingWithTickets extends Booking{
-    tickets: Ticket[]
-}
+
+export interface UserWithBookings {
+    id: string;
+    nom: string;
+    email: string;
+    isAdmin?: boolean;
+    reservations: Array<{
+      id: number;
+      seance_id: number;
+      date_reservation: string;
+      tickets: Array<{
+        id: number;
+        reservation_id: number;
+        type: string;
+        num_siege: string;
+        price: number;
+        created_at?: string;
+      }>;
+      seance: {
+        id: number;
+        heure: string;
+        film: {
+          id: number;
+          nom: string;
+          poster: string;
+        } | null;
+        salle: {
+          id: number;
+          nom: string;
+        } | null;
+      } | null;
+    }>;
+  }
+
 
 
 

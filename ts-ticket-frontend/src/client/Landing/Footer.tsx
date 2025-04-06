@@ -78,7 +78,7 @@ const Footer: React.FC = () => {
                 fontFamily: 'Poppins, sans-serif',
               }}
             >
-              CineManage
+              CineGold
             </Typography>
             
             <Typography 
@@ -90,7 +90,7 @@ const Footer: React.FC = () => {
                 maxWidth: '90%'
               }}
             >
-              Experience the magic of cinema with CineManage. Bringing you the best movies, comfort, and entertainment since 2005.
+              Experience the magic of cinema with CineGold. Bringing you the best movies, comfort, and entertainment since 2005.
             </Typography>
             
             <Button 
@@ -170,7 +170,7 @@ const Footer: React.FC = () => {
                 textAlign: { xs: 'center', md: 'left' },
               }}
             >
-              © 2025 CineManage. All rights reserved.
+              © 2025 CineGold. All rights reserved.
             </Typography>
           </Grid>
           
