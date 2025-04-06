@@ -81,10 +81,10 @@ const Login: React.FC = () => {
                     maxWidth: '70%'
                 }}>
                     <Typography variant="h5" sx={{ fontWeight: 600, color: '#232323' }}>
-                        CineGold Admin Portal
+                        CineGold
                     </Typography>
                     <Typography variant="body1" sx={{ color: '#555555', mt: 1 }}>
-                        Manage your theater experience in one place
+                        Your gateway to the world of cinema.
                     </Typography>
                 </Box>
             </Box>

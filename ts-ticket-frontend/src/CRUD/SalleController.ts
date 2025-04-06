@@ -9,7 +9,7 @@ const getAuthHeaders = () => {
 };
 
 export const getSalles = async () => {
-    const response = await axios.get<Salle[]>(API_URL, { headers: getAuthHeaders() });
+    const response = await axios.get<Salle[]>(API_URL);
     return response.data;
 };
 

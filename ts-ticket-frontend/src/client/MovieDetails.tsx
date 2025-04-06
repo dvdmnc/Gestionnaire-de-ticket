@@ -15,11 +15,15 @@ import {
   CardActions,
   Rating
 } from '@mui/material';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { getFilmById } from '../CRUD/FilmController';
 import { getSeances } from '../CRUD/SeanceController';
 import { getSalles } from '../CRUD/SalleController';
 import { Film, Seance, Salle } from '../CRUD/Types';
+import { useNavigate } from "react-router-dom";
+
+
+
 
 const MovieDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -27,14 +31,21 @@ const MovieDetails: React.FC = () => {
   const theme = useTheme();
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-  
   const [film, setFilm] = useState<Film | null>(null);
   const [seances, setSeances] = useState<Seance[]>([]);
   const [salles, setSalles] = useState<Salle[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   
+
+  const handleBookFilm = (film: Film) => {
+    // Store selected film in sessionStorage
+    sessionStorage.setItem('selectedFilm', JSON.stringify(film));
+    // Navigate to reservations page
+    navigate('/client/reservation');
+  }
   useEffect(() => {
+    window.scrollTo(0, 0);
     const fetchMovieDetails = async () => {
       try {
         setLoading(true);
@@ -219,7 +230,8 @@ const MovieDetails: React.FC = () => {
                     sx={{ 
                       fontWeight: 700,
                       mb: 1,
-                      fontFamily: 'Poppins, sans-serif'
+                      fontFamily: 'Poppins, sans-serif',
+                      color: '#ffffff'
                     }}
                   >
                     {film.nom}
@@ -324,10 +336,7 @@ const MovieDetails: React.FC = () => {
                         backgroundColor: '#00c4d8',
                       }
                     }}
-                    onClick={() => {
-                      const element = document.getElementById('seances-section');
-                      element?.scrollIntoView({ behavior: 'smooth' });
-                    }}
+                    onClick={() => handleBookFilm(film)}
                   >
                     Book Tickets
                   </Button>
@@ -489,7 +498,7 @@ const MovieDetails: React.FC = () => {
                                     backgroundColor: '#1565c0',
                                   }
                                 }}
-                                onClick={() => navigate(`/booking/${seance.id}`)}
+                                onClick={() => handleBookFilm(film)}
                               >
                                 Book Now
                               </Button>

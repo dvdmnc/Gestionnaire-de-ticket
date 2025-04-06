@@ -190,7 +190,7 @@ const HeroSection: React.FC = () => {
             {/* Clean and minimalist main image */}
             <Box 
               component="img"
-              src="https://images.unsplash.com/photo-1640127249308-098702574176?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+              src="https://images.unsplash.com/photo-1640127249305-793865c2efe1?q=80&w=2003&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
               sx={{
                 width: '100%',
                 height: 'auto',

@@ -14,15 +14,19 @@ import BookingManager from "./view/booking/BookingManager.tsx";
 import ForgotPassword from './view/Auth/ForgotPassword.tsx';
 import UpdatePassword from './view/Auth/UpdatePassword.tsx';
 import Contact from './view/Contact.tsx';
-import LandingPage from './client/LandingPage.tsx';
-import MovieDetails from './client/MovieDetails';
-
+import LandingPage from './client/Landing/LandingPage.tsx';
+import MovieDetails from './client/MovieDetails.tsx';
+import ReservationPage from './client/ReservationPage.tsx'; // Added missing import
+import UserProfile from './client/UserProfile.tsx';
+import AdminRoute from './view/Auth/AdminRoute.tsx';
 function App() {
 
   return (
     <Box sx={{ width:'100%' }}>
         <Navbar />
         <Routes>
+                 <Route path="/" element={<LandingPage />} />
+                 <Route path="/movie/:id" element={<MovieDetails />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/reset-password" element={<ForgotPassword />} />
                 <Route path="/update-password" element={<UpdatePassword />} />
@@ -36,7 +40,6 @@ function App() {
                 </Route>
 
               <Route path={"client/home"} element={<LandingPage />} />
-              <Route path="/movie/:id" element={<MovieDetails />} />
             <Route path={"client/reservation"} element={<ReservationPage />} />
               <Route path="client/register" element={<Register />} />
               <Route element={<AuthRoute />}>
