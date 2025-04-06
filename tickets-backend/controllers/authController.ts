@@ -61,29 +61,43 @@ class AuthController {
 
 
 
-  static async login(req: Request, res: Response) {
-    const { email, password } = req.body;
+static async login(req: Request, res: Response) {
+  const { email, password } = req.body;
 
-    try {
-      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+  try {
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
 
-      if (error) return res.status(401).json({ error: error.message });
+    if (error) return res.status(401).json({ error: error.message });
 
-      const { data: userData, error: userError } = await supabase //Because isAdmin is not returned by the signInWithPassword method so we have to look up the user this way
-        .from("users")
-        .select("*")
-        .eq("id", data.user.id)
-        .single();
+    const userId = data.user.id;
 
-        if (userError){
-          res.status(500).json({ error: "Internal Server Error" });
-        }
+    const { data: userData, error: userError } = await supabase
+      .from("users")
+      .select("id, email, nom, isAdmin")
+      .eq("id", userId)
+      .single();
 
-      return res.json({ message: 'Login successful!', token: data.session?.access_token, user:userData });
-    } catch (err) {
-      return res.status(500).json({ error: 'Internal Server Error' });
+    if (userError || !userData) {
+      console.error("❌ Failed to get user from DB", userError);
+      return res.status(500).json({ error: "Failed to retrieve user data" });
     }
+
+    console.log("💥 userData:", userData);
+
+    return res.status(200).json({
+      message: 'Login successful!',
+      token: data.session?.access_token,
+      user: {
+        id: userData.id,
+        isAdmin: userData.isAdmin || false
+      }
+    });
+  } catch (err) {
+    console.error("❌ Catch block error:", err);
+    return res.status(500).json({ error: 'Internal Server Error' });
   }
+}
+
 
   static async getUser(req: Request, res: Response) {
     const token = req.headers.authorization?.split(' ')[1];

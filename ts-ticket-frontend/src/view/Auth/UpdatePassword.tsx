@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Box, Button, TextField, Typography, Snackbar, Alert } from '@mui/material';
-import { createClient } from '@supabase/supabase-js'
+import { createClient } from '@supabase/supabase-js';
 
 const supabaseUrl = "https://nwjetzftjnpmemcmlnyp.supabase.co";
 const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im53amV0emZ0am5wbWVtY21sbnlwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDA0MDI5MzUsImV4cCI6MjA1NTk3ODkzNX0._ItqMFvW6D93d7SFkoByJz-LZvubeMuv6I1O7TcF0xQ";
@@ -8,16 +8,14 @@ const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 const UpdatePassword: React.FC = () => {
-const [newPassword, setNewPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
   const [status, setStatus] = useState('');
   const [openSnackbar, setOpenSnackbar] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const { data, error } = await supabase.auth.updateUser({
-        password: newPassword,
-      });
+      const { error } = await supabase.auth.updateUser({ password: newPassword });
       if (error) {
         setStatus(error.message);
       } else {
@@ -29,71 +27,90 @@ const [newPassword, setNewPassword] = useState('');
     setOpenSnackbar(true);
   };
 
-  const handleCloseSnackbar = () => {
-    setOpenSnackbar(false);
-  };
+  const handleCloseSnackbar = () => setOpenSnackbar(false);
 
   return (
     <Box
       sx={{
-        maxWidth: 400,
-        margin: 'auto',
-        mt: 4,
-        p: 3,
+        height: '91.47vh',
+        background: 'linear-gradient(to right, rgb(8, 30, 63), rgb(0, 6, 34))',
         display: 'flex',
-        flexDirection: 'column',
         alignItems: 'center',
-        boxShadow: 3,
-        borderRadius: 2,
-        backgroundColor: '#ffffff'
+        justifyContent: 'center',
+        px: 2,
       }}
     >
-      <Typography variant="h5" component="h1" sx={{ mb: 2, fontWeight: 'bold' }}>
-        Set a New Password
-      </Typography>
-      <Typography variant="body1" sx={{ mb: 3, color: 'text.secondary' }}>
-        Please enter your new password below.
-      </Typography>
       <Box
-        component="form"
-        onSubmit={handleSubmit}
-        sx={{ width: '100%', display: 'flex', flexDirection: 'column', gap: 2 }}
+        sx={{
+          width: '100%',
+          maxWidth: 420,
+          backgroundColor: 'rgba(255, 255, 255, 0.05)',
+          p: 4,
+          borderRadius: 3,
+          boxShadow: '0 0 20px rgba(0,0,0,0.3)',
+          color: '#fff'
+        }}
       >
-        <TextField
-          label="New Password"
-          type="password"
-          variant="outlined"
-          fullWidth
-          value={newPassword}
-          onChange={(e) => setNewPassword(e.target.value)}
-          required
-          sx={{
-            '& .MuiOutlinedInput-root': {
-              borderRadius: '8px',
-            },
-          }}
-        />
-        <Button
-          type="submit"
-          variant="contained"
-          fullWidth
-          sx={{
-            py: 1.5,
-            borderRadius: '8px',
-            fontWeight: 600,
-            backgroundColor: '#3f51b5',
-            textTransform: 'none',
-            fontSize: '1rem',
-            boxShadow: '0 3px 5px rgba(0, 0, 0, 0.1)',
-            '&:hover': {
-              backgroundColor: '#303f9f',
-              boxShadow: '0 5px 8px rgba(0, 0, 0, 0.2)'
-            }
-          }}
+        <Typography variant="h4" sx={{ mb: 2, fontWeight: 700, fontFamily: 'Poppins, sans-serif', textAlign: 'center' }}>
+          Set New Password
+        </Typography>
+        <Typography variant="body2" sx={{ mb: 3, color: '#c3d0ff', fontFamily: 'Montserrat, sans-serif', textAlign: 'center' }}>
+          Please enter your new password below.
+        </Typography>
+
+        <Box
+          component="form"
+          onSubmit={handleSubmit}
+          sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}
         >
-          Update Password
-        </Button>
+          <TextField
+            label="New Password"
+            type="password"
+            value={newPassword}
+            onChange={(e) => setNewPassword(e.target.value)}
+            required
+            fullWidth
+            variant="outlined"
+            InputLabelProps={{ style: { color: '#c3d0ff' } }}
+            InputProps={{ style: { color: '#fff' } }}
+            sx={{
+              '& .MuiOutlinedInput-root': {
+                borderRadius: '8px',
+                '& fieldset': {
+                  borderColor: '#3a4d75',
+                },
+                '&:hover fieldset': {
+                  borderColor: '#637ccd',
+                },
+                '&.Mui-focused fieldset': {
+                  borderColor: '#81a4ff',
+                },
+              },
+            }}
+          />
+
+          <Button
+            type="submit"
+            variant="contained"
+            fullWidth
+            sx={{
+              py: 1.4,
+              borderRadius: '8px',
+              fontWeight: 600,
+              backgroundColor: '#1976d2',
+              textTransform: 'none',
+              fontSize: '1rem',
+              fontFamily: 'Montserrat, sans-serif',
+              '&:hover': {
+                backgroundColor: '#1565c0',
+              },
+            }}
+          >
+            Update Password
+          </Button>
+        </Box>
       </Box>
+
       <Snackbar
         open={openSnackbar}
         autoHideDuration={6000}

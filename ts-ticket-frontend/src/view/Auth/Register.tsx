@@ -15,8 +15,6 @@ const Register: React.FC = () => {
   const [nom, setNom] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-
-  // Error & Snackbar states
   const [error, setError] = useState<string | null>(null);
   const [openSnackbar, setOpenSnackbar] = useState(false);
 
@@ -29,7 +27,6 @@ const Register: React.FC = () => {
       navigate('/login');
     } catch (err) {
       console.error('Registration failed', err);
-
       if (axios.isAxiosError(err)) {
         if (err.response?.data && typeof err.response.data === 'object' && 'error' in err.response.data) {
           setError(err.response.data.error as string);
@@ -41,7 +38,6 @@ const Register: React.FC = () => {
       } else {
         setError('An unknown error occurred');
       }
-
       setOpenSnackbar(true);
     }
   };
@@ -54,49 +50,61 @@ const Register: React.FC = () => {
     <Box
       sx={{
         display: 'flex',
-        minHeight: '90vh',
+        height: '91.47vh',
+        overflow: 'hidden',
         flexDirection: { xs: 'column', md: 'row' },
-        backgroundColor: '#ffffff',
+        background: 'linear-gradient(to right, rgb(8, 30, 63), rgb(0, 6, 34))',
+        color: '#fff',
       }}
     >
-      {/* Left Side Image (hidden on mobile) */}
+      {/* Left Side Image */}
       <Box
         sx={{
           flexBasis: { md: '55%' },
           display: { xs: 'none', md: 'flex' },
-          position: 'relative',
-          overflow: 'hidden',
-          padding: 2,
+          justifyContent: 'center',
+          alignItems: 'center',
+          p: 3,
         }}
       >
-        <img
-          src="https://images.unsplash.com/photo-1517604931442-7e0c8ed2963c?fm=jpg&q=60&w=3000&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-          alt="Cinema seating"
-          style={{
-            width: '100%',
-            height: '100%',
-            objectFit: 'cover',
-            borderRadius: '10px',
-            objectPosition: 'center',
-          }}
-        />
         <Box
           sx={{
-            position: 'absolute',
-            bottom: 40,
-            left: 40,
-            backgroundColor: 'rgba(255, 255, 255, 0.9)',
-            padding: '16px 24px',
-            borderRadius: '8px',
-            maxWidth: '70%',
+            width: '100%',
+            height: '100%',
+            borderRadius: 4,
+            overflow: 'hidden',
+            position: 'relative',
+            boxShadow: '0 0 20px rgba(0,0,0,0.4)',
           }}
         >
-          <Typography variant="h5" sx={{ fontWeight: 600, color: '#232323' }}>
-            Join CineGold
-          </Typography>
-          <Typography variant="body1" sx={{ color: '#555555', mt: 1 }}>
-            Create your account and enjoy our services
-          </Typography>
+          <img
+            src="https://images.unsplash.com/photo-1517604931442-7e0c8ed2963c?fm=jpg&q=60&w=3000&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+            alt="Cinema seating"
+            style={{
+              width: '100%',
+              height: '100%',
+              objectFit: 'cover',
+              objectPosition: 'center',
+            }}
+          />
+          <Box
+            sx={{
+              position: 'absolute',
+              bottom: 30,
+              left: 30,
+              backgroundColor: 'rgba(0, 0, 0, 0.6)',
+              padding: '16px 24px',
+              borderRadius: '8px',
+              maxWidth: '70%',
+            }}
+          >
+            <Typography variant="h5" sx={{ fontWeight: 600, color: '#fff' }}>
+              Join CineGold
+            </Typography>
+            <Typography variant="body2" sx={{ color: '#ccc', mt: 1 }}>
+              Create your account and enjoy our services
+            </Typography>
+          </Box>
         </Box>
       </Box>
 
@@ -108,23 +116,34 @@ const Register: React.FC = () => {
           justifyContent: 'center',
           alignItems: 'center',
           p: { xs: 3, sm: 6 },
-          backgroundColor: '#ffffff',
         }}
       >
-        <Box sx={{ width: '100%', maxWidth: 450 }}>
-          <Box sx={{ mb: 6, textAlign: 'center' }}>
+        <Box
+          sx={{
+            width: '100%',
+            maxWidth: 420,
+            backgroundColor: 'rgba(255, 255, 255, 0.05)',
+            p: 4,
+            borderRadius: 3,
+            boxShadow: '0 0 20px rgba(0,0,0,0.3)',
+          }}
+        >
+          <Box sx={{ mb: 5, textAlign: 'center' }}>
             <Typography
               variant="h4"
-              component="h1"
               sx={{
                 fontWeight: 700,
-                color: '#232323',
+                fontFamily: 'Poppins, sans-serif',
+                color: '#ffffff',
                 mb: 1,
               }}
             >
               Create Account
             </Typography>
-            <Typography variant="body1" sx={{ color: '#666666' }}>
+            <Typography
+              variant="body2"
+              sx={{ color: '#c3d0ff', fontFamily: 'Montserrat, sans-serif' }}
+            >
               Start your movie journey with us
             </Typography>
           </Box>
@@ -132,11 +151,7 @@ const Register: React.FC = () => {
           <Box
             component="form"
             onSubmit={handleSubmit}
-            sx={{
-              display: 'flex',
-              flexDirection: 'column',
-              gap: 3,
-            }}
+            sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}
           >
             <TextField
               label="Name"
@@ -144,14 +159,22 @@ const Register: React.FC = () => {
               value={nom}
               onChange={(e) => setNom(e.target.value)}
               required
-              variant="outlined"
               fullWidth
+              variant="outlined"
+              InputLabelProps={{ style: { color: '#c3d0ff' } }}
+              InputProps={{ style: { color: '#fff' } }}
               sx={{
                 '& .MuiOutlinedInput-root': {
                   borderRadius: '8px',
-                  '& fieldset': { borderColor: '#e0e0e0' },
-                  '&:hover fieldset': { borderColor: '#bbbbbb' },
-                  '&.Mui-focused fieldset': { borderColor: '#3f51b5' },
+                  '& fieldset': {
+                    borderColor: '#3a4d75',
+                  },
+                  '&:hover fieldset': {
+                    borderColor: '#637ccd',
+                  },
+                  '&.Mui-focused fieldset': {
+                    borderColor: '#81a4ff',
+                  },
                 },
               }}
             />
@@ -161,14 +184,22 @@ const Register: React.FC = () => {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              variant="outlined"
               fullWidth
+              variant="outlined"
+              InputLabelProps={{ style: { color: '#c3d0ff' } }}
+              InputProps={{ style: { color: '#fff' } }}
               sx={{
                 '& .MuiOutlinedInput-root': {
                   borderRadius: '8px',
-                  '& fieldset': { borderColor: '#e0e0e0' },
-                  '&:hover fieldset': { borderColor: '#bbbbbb' },
-                  '&.Mui-focused fieldset': { borderColor: '#3f51b5' },
+                  '& fieldset': {
+                    borderColor: '#3a4d75',
+                  },
+                  '&:hover fieldset': {
+                    borderColor: '#637ccd',
+                  },
+                  '&.Mui-focused fieldset': {
+                    borderColor: '#81a4ff',
+                  },
                 },
               }}
             />
@@ -178,14 +209,22 @@ const Register: React.FC = () => {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              variant="outlined"
               fullWidth
+              variant="outlined"
+              InputLabelProps={{ style: { color: '#c3d0ff' } }}
+              InputProps={{ style: { color: '#fff' } }}
               sx={{
                 '& .MuiOutlinedInput-root': {
                   borderRadius: '8px',
-                  '& fieldset': { borderColor: '#e0e0e0' },
-                  '&:hover fieldset': { borderColor: '#bbbbbb' },
-                  '&.Mui-focused fieldset': { borderColor: '#3f51b5' },
+                  '& fieldset': {
+                    borderColor: '#3a4d75',
+                  },
+                  '&:hover fieldset': {
+                    borderColor: '#637ccd',
+                  },
+                  '&.Mui-focused fieldset': {
+                    borderColor: '#81a4ff',
+                  },
                 },
               }}
             />
@@ -194,47 +233,25 @@ const Register: React.FC = () => {
               variant="contained"
               fullWidth
               sx={{
-                py: 1.5,
+                py: 1.4,
                 borderRadius: '8px',
                 fontWeight: 600,
-                backgroundColor: '#3f51b5',
+                backgroundColor: '#1976d2',
                 textTransform: 'none',
                 fontSize: '1rem',
-                boxShadow: '0 3px 5px rgba(0, 0, 0, 0.1)',
+                fontFamily: 'Montserrat, sans-serif',
                 '&:hover': {
-                  backgroundColor: '#303f9f',
-                  boxShadow: '0 5px 8px rgba(0, 0, 0, 0.2)',
+                  backgroundColor: '#1565c0',
                 },
               }}
             >
               Sign Up
             </Button>
           </Box>
-
-          {/* Responsive image for mobile */}
-          <Box
-            sx={{
-              display: { xs: 'block', md: 'none' },
-              mt: 6,
-              borderRadius: '8px',
-              overflow: 'hidden',
-              boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
-            }}
-          >
-            <img
-              src="https://images.unsplash.com/photo-1517604931442-7e0c8ed2963c?fm=jpg&q=60&w=3000&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-              alt="Cinema seats"
-              style={{
-                width: '100%',
-                height: 'auto',
-                display: 'block',
-              }}
-            />
-          </Box>
         </Box>
       </Box>
 
-      {/* Error Snackbar */}
+      {/* Snackbar */}
       <Snackbar
         open={openSnackbar}
         autoHideDuration={6000}

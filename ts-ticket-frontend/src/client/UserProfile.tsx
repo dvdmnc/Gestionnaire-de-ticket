@@ -6,19 +6,16 @@ import {
   Snackbar,
   Alert,
   Button,
-  Table,
-  TableHead,
-  TableRow,
-  TableCell,
-  TableBody,
   Card,
   CardMedia,
-  Container
+  Container,
+  Grid,
+  Avatar
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-import { UserWithBookings } from '../CRUD/Types'; 
+import { UserWithBookings } from '../CRUD/Types';
 
-const API_URL =  'http://localhost:5000';
+const API_URL = 'http://localhost:5000';
 
 const UserProfile: React.FC = () => {
   const [userData, setUserData] = useState<UserWithBookings | null>(null);
@@ -26,7 +23,7 @@ const UserProfile: React.FC = () => {
   const [openSnackbar, setOpenSnackbar] = useState(false);
 
   const navigate = useNavigate();
-  const userId = localStorage.getItem('user_id'); 
+  const userId = localStorage.getItem('user_id');
 
   useEffect(() => {
     if (!userId) {
@@ -40,7 +37,8 @@ const UserProfile: React.FC = () => {
   const fetchUserProfile = async (id: string) => {
     try {
       const response = await axios.get(`${API_URL}/users/${id}`);
-      setUserData(response.data);  
+      setUserData(response.data);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (err) {
       setError('Failed to load user profile');
       setOpenSnackbar(true);
@@ -56,163 +54,126 @@ const UserProfile: React.FC = () => {
     navigate('/reset-password');
   };
 
+  const formatDate = (dateString: string) => {
+    const options: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+    return new Date(dateString).toLocaleDateString(undefined, options);
+  };
+
   return (
-    <Box
-      sx={{
-        display: 'flex',
-        minHeight: '90vh',
-        flexDirection: { xs: 'column', md: 'row' },
-        backgroundColor: '#ffffff'
-      }}
-    >
-
-      <Box
-        sx={{
-          flexBasis: { md: '55%' },
-          display: { xs: 'none', md: 'flex' },
-          position: 'relative',
-          overflow: 'hidden',
-          p: 2,
-        }}
-      >
-        <img
-          src="https://images.unsplash.com/photo-1489278353717-f64c6ee8a4d2?fm=jpg&q=60&w=3000&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-          alt="Cinema background"
-          style={{
-            width: '100%',
-            height: '100%',
-            objectFit: 'cover',
-            borderRadius: '10px',
-            objectPosition: 'center'
-          }}
-        />
-        <Box
-          sx={{
-            position: 'absolute',
-            bottom: 40,
-            left: 40,
-            backgroundColor: 'rgba(255, 255, 255, 0.9)',
-            padding: '16px 24px',
-            borderRadius: '8px',
-            maxWidth: '70%'
-          }}
-        >
-          <Typography variant="h5" sx={{ fontWeight: 600, color: '#232323' }}>
-            Welcome to Your Profile
-          </Typography>
-          <Typography variant="body1" sx={{ color: '#555555', mt: 1 }}>
-            Manage your account and view your bookings
-          </Typography>
-        </Box>
-      </Box>
-
-      <Box
-        sx={{
-          flexBasis: { md: '45%' },
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'flex-start',
-          alignItems: 'center',
-          p: { xs: 3, sm: 6 },
-          backgroundColor: '#ffffff'
-        }}
-      >
-        {/* User Info */}
-        <Container sx={{ maxWidth: 600 }}>
-          <Typography variant="h4" sx={{ mb: 3, fontWeight: 700, textAlign: 'center' }}>
-            Your Profile
-          </Typography>
-          {userData && (
-            <Box sx={{ mb: 4 }}>
-              <Typography variant="h6" sx={{ fontWeight: 600 }}>
-                Name: {userData.nom}
-              </Typography>
-              <Typography variant="h6" sx={{ fontWeight: 600, mt: 1 }}>
-                Email: {userData.email}
-              </Typography>
+    <Box sx={{ background: 'linear-gradient(to right, rgb(8, 30, 63), rgb(0, 6, 34))', color: '#fff', py: 8, minHeight: '100vh' }}>
+      <Container maxWidth="lg">
+        <Grid container spacing={5}>
+          <Grid item xs={12} md={4}>
+            <Box sx={{ backgroundColor: 'rgba(255, 255, 255, 0.05)', borderRadius: 3, p: 4, textAlign: 'center' }}>
+            <Avatar
+  sx={{ width: 96, height: 96, mx: 'auto', mb: 2 }}
+  src="https://t3.ftcdn.net/jpg/03/94/89/90/360_F_394899054_4TMgw6eiMYUfozaZU3Kgr5e0LdH4ZrsU.jpg"
+/>
+              <Typography variant="h6" sx={{ fontFamily: 'Montserrat, sans-serif', color: '#ffffff' }}>{userData?.nom}</Typography>
+              <Typography variant="body2" sx={{ fontFamily: 'Montserrat, sans-serif', color: '#c3d0ff', mb: 2 }}>{userData?.email}</Typography>
               <Button
-                variant="contained"
-                sx={{ mt: 2, borderRadius: '8px', textTransform: 'none', fontWeight: 500 }}
+                variant="outlined"
                 onClick={handleChangePassword}
+                sx={{
+                  color: '#fff',
+                  borderColor: '#1976d2',
+                  fontFamily: 'Montserrat, sans-serif',
+                  textTransform: 'none',
+                  borderRadius: 2,
+                  '&:hover': {
+                    backgroundColor: 'rgba(25, 118, 210, 0.1)',
+                    borderColor: '#1565c0'
+                  }
+                }}
               >
                 Change Password
               </Button>
             </Box>
-          )}
+          </Grid>
 
-          <Typography variant="h5" sx={{ mb: 2, fontWeight: 600 }}>
-            Your Bookings
-          </Typography>
-          {userData?.reservations && userData.reservations.length > 0 ? (
-            userData.reservations.map((booking) => (
-              <Box key={booking.id} sx={{ mb: 4 }}>
-                <Typography variant="subtitle1" sx={{ fontWeight: 500 }}>
-                  Booking #{booking.id} - {new Date(booking.date_reservation).toLocaleString()}
-                </Typography>
-                {booking.seance && (
-                  <Box sx={{ display: 'flex', alignItems: 'center', mt: 1, gap: 2 }}>
-                    {booking.seance.film?.poster && (
-                      <Card sx={{ width: 80, height: 120 }}>
-                        <CardMedia
-                          component="img"
-                          image={booking.seance.film.poster}
-                          alt={booking.seance.film.nom}
-                          sx={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                        />
-                      </Card>
-                    )}
-                    <Box>
-                      <Typography variant="body1">
-                        <strong>Film:</strong> {booking.seance.film?.nom}
+          <Grid item xs={12} md={8}>
+            <Typography variant="h4" sx={{ fontFamily: 'Poppins, sans-serif', fontWeight: 700, mb: 4 }}>
+              Booking History
+            </Typography>
+
+            {userData?.reservations && userData.reservations.length > 0 ? (
+              userData.reservations.map((booking) => (
+                <Box key={booking.id} sx={{ mb: 5, backgroundColor: 'rgba(255, 255, 255, 0.05)', p: 3, borderRadius: 3 }}>
+                  <Typography variant="subtitle1" sx={{ color: '#81a4ff', fontFamily: 'Poppins, sans-serif', mb: 2 }}>
+                    Booking #{booking.id} — {formatDate(booking.seance?.heure || booking.date_reservation)}
+                  </Typography>
+                  <Grid container spacing={2}>
+                    <Grid item xs={12} sm={4}>
+                      {booking.seance?.film?.poster && (
+                        <Card sx={{ height: '100%', borderRadius: 2, overflow: 'hidden' }}>
+                          <CardMedia
+                            component="img"
+                            image={booking.seance.film.poster}
+                            alt={booking.seance.film.nom}
+                            sx={{ height: '100%', objectFit: 'cover' }}
+                          />
+                        </Card>
+                      )}
+                    </Grid>
+                    <Grid item xs={12} sm={8}>
+                      <Typography variant="h5" sx={{ fontFamily: 'Poppins, sans-serif', color: '#fff', mb: 1 }}>
+                        {booking.seance?.film?.nom}
                       </Typography>
-                      <Typography variant="body1">
-                        <strong>Salle:</strong> {booking.seance.salle?.nom}
+                      <Typography variant="body1" sx={{ fontFamily: 'Montserrat, sans-serif', color: '#c3d0ff' }}>
+                        {booking.seance?.salle?.nom}
                       </Typography>
-                      <Typography variant="body1">
-                        <strong>Time:</strong> {new Date(booking.seance.heure).toLocaleString()}
-                      </Typography>
+                    </Grid>
+                  </Grid>
+
+                  <Box sx={{ mt: 3 }}>
+                    <Typography variant="subtitle2" sx={{ color: '#c3d0ff', fontFamily: 'Montserrat, sans-serif', mb: 1 }}>Tickets:</Typography>
+                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2 }}>
+                      {booking.tickets.map((ticket) => (
+                        <Box
+                          key={ticket.id}
+                          sx={{
+                            backgroundColor: 'rgba(129, 164, 255, 0.15)',
+                            border: '1px solid rgba(129, 164, 255, 0.4)',
+                            borderRadius: '12px',
+                            px: 3,
+                            py: 2,
+                            minWidth: '160px',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            alignItems: 'flex-start',
+                            color: '#fff',
+                            fontFamily: 'Montserrat, sans-serif'
+                          }}
+                        >
+                          <Typography variant="body2" sx={{ 
+                                                            fontFamily: 'Montserrat, sans-serif',
+                                                            fontWeight: 600 }}>
+                            {ticket.type}</Typography>
+                          <Typography variant="body2" sx={{  fontFamily: 'Montserrat, sans-serif' }}>Seat {ticket.num_siege}</Typography>
+                          <Typography variant="body2" sx={{  fontFamily: 'Montserrat, sans-serif'}}>{ticket.price} $</Typography>
+                        </Box>
+                      ))}
                     </Box>
                   </Box>
-                )}
-                {/* Tickets table */}
-                {booking.tickets && booking.tickets.length > 0 && (
-                  <Table sx={{ mt: 2 }}>
-                    <TableHead>
-                      <TableRow>
-                        <TableCell>Fare Type</TableCell>
-                        <TableCell>Seat</TableCell>
-                        <TableCell>Price</TableCell>
-                      </TableRow>
-                    </TableHead>
-                    <TableBody>
-                      {booking.tickets.map((ticket) => (
-                        <TableRow key={ticket.id}>
-                          <TableCell>{ticket.type}</TableCell>
-                          <TableCell>{ticket.num_siege}</TableCell>
-                          <TableCell>{ticket.price} $</TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                )}
-              </Box>
-            ))
-          ) : (
-            <Typography variant="body1">No bookings found.</Typography>
-          )}
-        </Container>
-      </Box>
+                </Box>
+              ))
+            ) : (
+              <Typography sx={{ fontFamily: 'Montserrat, sans-serif', color: '#c3d0ff' }}>No bookings found.</Typography>
+            )}
+          </Grid>
+        </Grid>
 
-      <Snackbar
-        open={openSnackbar}
-        autoHideDuration={6000}
-        onClose={handleCloseSnackbar}
-        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-      >
-        <Alert onClose={handleCloseSnackbar} severity="error" sx={{ width: '100%' }}>
-          {error}
-        </Alert>
-      </Snackbar>
+        <Snackbar
+          open={openSnackbar}
+          autoHideDuration={6000}
+          onClose={handleCloseSnackbar}
+          anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+        >
+          <Alert onClose={handleCloseSnackbar} severity="error" sx={{ width: '100%' }}>
+            {error}
+          </Alert>
+        </Snackbar>
+      </Container>
     </Box>
   );
 };
