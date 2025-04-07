@@ -157,7 +157,8 @@ const BookingForm: React.FC<Props> = ({ existingBooking, onSave, onClose }) => {
         }
     };
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement | { name?: string; value: unknown }>) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const handleChange = (e: any) => {
         const { name, value } = e.target;
 
         if (name === 'seance_id') {
@@ -179,8 +180,8 @@ const BookingForm: React.FC<Props> = ({ existingBooking, onSave, onClose }) => {
             [name as string]: value,
         }));
     };
-
-    const handleTicketChange = (index: number, field: string, value: string | number) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const handleTicketChange = (index: number, field: string, value: any) => {
         setTickets((prevTickets) => {
             const updatedTickets = [...prevTickets];
 

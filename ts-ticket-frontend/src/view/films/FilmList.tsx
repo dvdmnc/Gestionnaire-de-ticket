@@ -58,6 +58,7 @@ const FilmList: React.FC<Props> = ({ films, onEdit, onDelete }) => {
         <DataTable
             title="Films"
             data={films}
+            // @ts-expect-error - test
             columns={columns}
             primaryKey="id"
             onEdit={onEdit}

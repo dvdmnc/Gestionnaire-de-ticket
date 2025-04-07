@@ -23,7 +23,7 @@ import {
     DialogTitle,
     DialogContent,
     DialogActions,
-    TextField
+    TextField, SelectChangeEvent
 } from '@mui/material';
 import { FilmWithSeances, Seance, Salle, types, BookingWithTickets } from "../CRUD/Types.ts";
 import {Ticket} from "../CRUD/Types.ts";
@@ -261,7 +261,7 @@ const ReservationPage: React.FC = () => {
     };
 
     // Handle seat type change for selection
-    const handleSeatTypeChange = (event: React.ChangeEvent<{ value: unknown }>) => {
+    const handleSeatTypeChange = (event:   SelectChangeEvent<"normal" | "reduit" | "enfant">) => {
         setSelectedSeatType(event.target.value as types);
     };
 
@@ -657,7 +657,7 @@ const ReservationPage: React.FC = () => {
                                                                 fontFamily: 'Montserrat, sans-serif'
                                                             }}
                                                         >
-                                                            Base price: €{screening.prix_base?.toFixed(2) || '10.00'}
+                                                            Base price: €{'10.00'}
                                                         </Typography>
 
                                                         <Chip

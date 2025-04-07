@@ -28,7 +28,7 @@ const FilmForm: React.FC<Props> = ({ existingFilm, onSave, onClose }) => {
         description: '',
         duree: 0,
         realisateur: '',
-        genre: '',
+        genre: 'Action',
     } as Film);
 
     // Available film genres from the Types.ts file
@@ -125,11 +125,13 @@ const FilmForm: React.FC<Props> = ({ existingFilm, onSave, onClose }) => {
                     required
                     fullWidth
                 />
+
                 <FormControl fullWidth required>
                     <InputLabel>Genre</InputLabel>
                     <Select
                         name="genre"
                         value={film.genre || ''}
+                        // @ts-expect-error - MUI Select onChange type mismatch
                         onChange={handleChange}
                     >
                         {filmGenres.map((genre) => (

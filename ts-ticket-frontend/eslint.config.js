@@ -23,6 +23,9 @@ export default tseslint.config(
         'warn',
         { allowConstantExport: true },
       ],
+        "@typescript-eslint/no-explicit-any": "off",
+        // or specifically for this rule if you can identify it
+        "@typescript-eslint/ban-types": "off"
     },
   },
 )

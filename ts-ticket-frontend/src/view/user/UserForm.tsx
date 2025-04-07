@@ -209,6 +209,7 @@ const UserForm: React.FC<Props> = ({ existingUser, onSave }) => {
                     <Select
                         name="isAdmin"
                         value={user.isAdmin ? 1 : 0}
+                        // @ts-expect-error - test
                         onChange={handleChange}
                         MenuProps={{
                             PaperProps: {

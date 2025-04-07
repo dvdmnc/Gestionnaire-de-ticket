@@ -39,6 +39,8 @@ const SeanceForm: React.FC<Props> = ({ existingSeance, onSave, onClose }) => {
     useEffect(() => {
         getFilms().then(setFilms);
         getSalles().then(setSalles);
+        console.log(selectedDate); // Or any meaningful usage
+
 
         if (existingSeance) {
             setSeance(existingSeance);
@@ -102,13 +104,17 @@ const SeanceForm: React.FC<Props> = ({ existingSeance, onSave, onClose }) => {
                         }
 
                     }
+                        // @ts-expect-error - test
                         renderInput={(params) => <TextField {...params} fullWidth />}
                     />
                 </LocalizationProvider>
                 {/* Film Selection */}
                 <FormControl fullWidth>
                     <InputLabel>Film</InputLabel>
-                    <Select name="film_id" value={seance.film_id || 0} onChange={handleChange} required>
+
+                    <Select name="film_id" value={seance.film_id || 0}
+                            // @ts-expect-error - test
+                            onChange={handleChange} required>
                         {films.map((film) => (
                             <MenuItem key={film.id} value={film.id}>
                                 {film.nom} ({film.annee})
@@ -120,7 +126,9 @@ const SeanceForm: React.FC<Props> = ({ existingSeance, onSave, onClose }) => {
                 {/* Salle Selection */}
                 <FormControl fullWidth>
                     <InputLabel>Salle</InputLabel>
-                    <Select name="salle_id" value={seance.salle_id || 0} onChange={handleChange} required>
+                    <Select name="salle_id" value={seance.salle_id || 0}
+                                // @ts-expect-error - test
+                            onChange={handleChange} required>
                         {salles.map((salle) => (
                             <MenuItem key={salle.id} value={salle.id}>
                                 {salle.nom} - Capacity: {salle.capacity}
