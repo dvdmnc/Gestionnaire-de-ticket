@@ -37,6 +37,7 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import {getSeances} from "../CRUD/SeanceController.ts";
 import {createBooking as apiCreateBooking} from "../CRUD/BookingController.ts";
 import axios from "axios";
+import {useNavigate} from "react-router-dom";
 
 // Create a mock function for creating a booking
 // In a real app, this would be your actual API call
@@ -88,6 +89,7 @@ const ReservationPage: React.FC = () => {
     const [successDialogOpen, setSuccessDialogOpen] = useState(false);
     const [bookingReference, setBookingReference] = useState('');
 
+    const navigate = useNavigate();
 
 
     useEffect(()=>{
@@ -168,15 +170,11 @@ const ReservationPage: React.FC = () => {
     const fetchAvailableSeats = async (seanceId: number, salle: Salle, existingTickets: Ticket[] = []) => {
         setLoading(true);
         try {
-            // This would ideally be a dedicated API endpoint
-            // For now, we'll mock it by fetching all tickets for the seance
+
             const response = await axios.get(`http://localhost:5000/tickets?seance_id=${seanceId}`);
             const takenTickets: Ticket[] = response.data;
-
-            // Generate all seat numbers from 1 to capacity
             const allSeatNumbers = Array.from({ length: salle.capacity }, (_, i) => i + 1);
 
-            // Get seats that are taken by other bookings (not including our current booking's seats)
             const existingTicketSeats = existingTickets.map(ticket => parseInt(ticket.num_siege));
             const takenSeatNumbers = takenTickets
                 .filter(ticket => !existingTicketSeats.includes(parseInt(ticket.num_siege)))
@@ -213,6 +211,13 @@ const ReservationPage: React.FC = () => {
     }, [selectedSeance, selectedSalle]);
     // Handle next step in the booking process
     const handleNext = () => {
+        const token = localStorage.getItem('token');
+
+        if(!token) {
+            navigate('/login');
+            return;
+        }
+
         setActiveStep((prevStep) => prevStep + 1);
     };
 
