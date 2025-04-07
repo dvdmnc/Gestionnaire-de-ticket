@@ -99,8 +99,8 @@ const UserProfile: React.FC = () => {
             {userData?.reservations && userData.reservations.length > 0 ? (
               userData.reservations.map((booking) => (
                 <Box key={booking.id} sx={{ mb: 5, backgroundColor: 'rgba(255, 255, 255, 0.05)', p: 3, borderRadius: 3 }}>
-                  <Typography variant="subtitle1" sx={{ color: '#81a4ff', fontFamily: 'Poppins, sans-serif', mb: 2 }}>
-                    Booking #{booking.id} — {formatDate(booking.seance?.heure || booking.date_reservation)}
+                  <Typography variant="subtitle1" sx={{ color: '#fff', fontFamily: 'Poppins, sans-serif', mb: 2 }}>
+                    Booking {booking.id} — {formatDate(booking.seance?.heure || booking.date_reservation)}
                   </Typography>
                   <Grid container spacing={2}>
                     <Grid item xs={12} sm={4}>
